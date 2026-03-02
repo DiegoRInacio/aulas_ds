@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Aulas - Index</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #27ae60, #2ecc71, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #9b59b6, #e74c3c, #f39c12);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .course-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .course-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .course-description {
+            color: #7f8c8d;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .courses-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Curso de Engenharia de Software</h1>
+            <p>Bem-vindo ao portal da disciplina de Ciência de Dados!</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number">9</span>
+                <div class="stat-label">Aulas Disponíveis</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100+</span>
+                <div class="stat-label">Slides Totais</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">Univassouras</span>
+                <div class="stat-label">Disponível para Alunos de Ciência de Dados</div>
+            </div>
+        </div>
+
+        <div class="courses-grid">
+            <!-- Aula 1 -->
+            <div class="course-card">
+                <div class="course-icon">💻</div>
+                <h3 class="course-title">Introdução à Ciência de Dados e Ciclo de Vida do Dado e Tipos de Dados</h3>
+                <p class="course-description">
+                    Conceitos fundamentais de Ciência de Dados, ciclo de vida dos dados e tipos de dados.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 45 min</span>
+                    <span>📊 15 slides</span>
+                </div>
+                <a href="Aula_01.html" class="btn-primary">Iniciar Aula</a>
+            </div>
+
+            <!-- Aula 2 -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🏛️</div>
+                <h3 class="course-title">Evolução dos Bancos de Dados</h3>
+                <p class="course-description">
+                    Como os banco de dados NoSQL se desenvolveram no decorrer do tempo e a diferença entre o SQL e NoSQL.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 45 min</span>
+                    <span>📊 16 slides</span>
+                </div>
+                <a href="Aula_02.html" class="btn-primary">Iniciar Aula</a>
+            </div>
+            -->
+
+            <!-- Aula 3 -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🍃</div>
+                <h3 class="course-title">CRUD Completo MongoDB</h3>
+                <p class="course-description">
+                    Como criar um banco de dados e manipular focado em MongoDB uma visão do Mongosh o Shel no Mongo Compass.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 60 min</span>
+                    <span>📊 10 slides</span>
+                </div>
+                <a href="Aula_03.html" class="btn-primary">Iniciar Aula</a>
+            </div>
+            -->
+
+            <!-- Aula 4 -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🍃</div>
+                <h3 class="course-title">CRUD Completo MongoDB AVANÇADO</h3>
+                <p class="course-description">
+                    Como criar um banco de dados e manipular focado em MongoDB uma visão do Mongosh o Shel no Mongo Compass.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 60 min</span>
+                    <span>📊 10 slides</span>
+                </div>
+                <a href="Aula_04.html" class="btn-primary">Iniciar Aula</a>
+            </div>
+            -->
+
+            <!-- Aula 5 -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🍃</div>
+                <h3 class="course-title">Consultas Entre Coleções MongoDB</h3>
+                <p class="course-description">
+                    Dominando o $lookup e Relacionamentos no MongoDB.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 120 min</span>
+                    <span>📊 20 slides</span>
+                </div>
+                <a href="Aula_05.html" class="btn-primary">Iniciar Aula</a>
+            </div>
+            -->
+
+            <!-- Exercício Aula 5 -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🍃</div>
+                <h3 class="course-title">Gabarito do Exercício: Consultas Entre Coleções MongoDB</h3>
+                <p class="course-description">
+                    Dominando o $lookup e Relacionamentos no MongoDB.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 120 min</span>
+                    <span>📊 20 slides</span>
+                </div>
+                <a href="consultas_mongodb_exercicios.html" class="btn-primary">Consultar Exercício</a>
+            </div>
+            -->
+
+            <!-- O que Cypher -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🧩</div>
+                <h3 class="course-title">O que é Cypher</h3>
+                <p class="course-description">
+                    Compreendendo a linguagem dos nós ;).
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 30 min</span>
+                    <span>📊 1 pagina</span>
+                </div>
+                <a href="Cypher.html" class="btn-primary">Consultar Exercício</a>
+            </div>
+            -->
+
+            <!-- Aula 06 -->
+            <!--
+            <div class="course-card">
+                <div class="course-icon">🧩</div>
+                <h3 class="course-title">CRUD Neo4j</h3>
+                <p class="course-description">
+                    Como criar um banco de dados e manipular focado em MongoDB uma visão do Mongosh o Shel no Mongo Compass.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 120 min</span>
+                    <span>📊 13 slides</span>
+                </div>
+                <a href="Aula_06.html" class="btn-primary">Consultar Exercício</a>
+            </div>
+            -->
+        </div>
+
+        <!-- Exercício Aula 5 -->
+        <!--
+        <div class="course-card">
+            <div class="course-icon">📊</div>
+            <h3 class="course-title">Exercício e Gabarito: MongoDB e Neo4j</h3>
+            <p class="course-description">
+                Exercício pratico e teórico para prova P2.
+            </p>
+            <div class="course-meta">
+                <span>⏱️ 240 min</span>
+                <span>📊 1 pagina</span>
+            </div>
+            <a href="consulta_mongo_neo4j_exercicio.html" class="btn-primary">Consultar Exercício</a>
+        </div>
+        -->
+
+        <div class="footer">
+            <p>💡 Dica: Todos os slides são interativos e otimizados para qualquer dispositivo!</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                Feito com 😤 usando HTML, CSS e JavaScript puro,
+                porem, pensado com carinho, espero que gostem!
+            </p>
+            <p>👨‍🏫 Ass.: Prof. Mesc. Diego Ramos Inácio</p>
+            <p>Saquarema RJ em 02/03/2026</p>
+        </div>
+    </div>
+
+    <script>
+        // Adiciona efeitos de interação
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Efeito de loading nos botões
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Carregando...';
+                btn.style.opacity = '0.7';
+                
+                // Simula um pequeno delay antes de navegar
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.opacity = '1';
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
