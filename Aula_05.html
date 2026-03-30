@@ -842,6 +842,55 @@ print(res.round(2))</pre>
     </div>
 </div>
 
+<!-- ===================== DOWNLOAD SIMULADO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Simulado Final — Prepare-se para a Prova</h2><span class="slide-tag purple">Download</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-purple" style="margin-bottom:14px">
+                <h4>O que tem no simulado</h4>
+                <ul>
+                    <li>40 questoes de multipla escolha (a, b, c, d)</li>
+                    <li>8 questoes por aula — cobre Aulas 01 a 05</li>
+                    <li>Resposta e correcao automatica ao executar</li>
+                    <li>Resultado com acertos por aula e gabarito completo</li>
+                </ul>
+            </div>
+            <div class="highlight-box">
+                <h3>Como usar</h3>
+                <p>1. Baixe o arquivo .ipynb abaixo<br>
+                2. Abra no Jupyter ou arraste para o Google Colab<br>
+                3. Preencha 'a', 'b', 'c' ou 'd' em cada celula<br>
+                4. Execute a celula final para ver seu resultado</p>
+            </div>
+            <div class="card a-amber" style="margin-top:14px">
+                <h4>Distribuicao das questoes</h4>
+                <table style="margin-top:8px">
+                    <tr><th>Aula</th><th>Topico</th><th>Qs</th></tr>
+                    <tr><td>01</td><td>Big Data e CD</td><td class="td-num">Q1–Q8</td></tr>
+                    <tr><td>02</td><td>Python</td><td class="td-num">Q9–Q16</td></tr>
+                    <tr><td>03</td><td>Estat. Descritiva</td><td class="td-num">Q17–Q24</td></tr>
+                    <tr><td>04</td><td>Probabilidade</td><td class="td-num">Q25–Q32</td></tr>
+                    <tr><td>05</td><td>Inferencia</td><td class="td-num">Q33–Q40</td></tr>
+                </table>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+            <div class="stat" style="width:100%;padding:28px 14px">
+                <span class="stat-number" style="font-size:3.8rem">40</span>
+                <div class="stat-label" style="font-size:.95rem">questoes cobrindo<br>as 5 aulas do semestre</div>
+            </div>
+            <button onclick="downloadSimulado()" style="width:100%;background:var(--infer);color:white;border:none;border-radius:12px;padding:20px 24px;font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer;letter-spacing:.04em;transition:background .2s" onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'">
+                Baixar Simulado (.ipynb)
+            </button>
+            <div class="card a-green" style="width:100%">
+                <h4>Criterio de aprovacao</h4>
+                <p>28 ou mais acertos = aprovado (70% de 40).<br>O notebook mostra quais questoes voce errou e o gabarito completo.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 </div><!-- /presentation-container -->
 
 <div class="navigation">
@@ -873,6 +922,445 @@ print(res.round(2))</pre>
         if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
     });
     showSlide(0);
+</script>
+<script>
+function downloadSimulado() {
+    const cells = [
+        {
+            cell_type: "markdown", id: "c0", metadata: {},
+            source: `# Simulado Final — Ciencia de Dados\n## Aulas 01 a 05 | 40 Questoes | Preparacao para Prova\n\n**Como usar:**\n1. Preencha sua resposta com 'a', 'b', 'c' ou 'd' em cada celula\n2. Execute cada celula de aula com Shift+Enter para registrar\n3. Execute a celula Correcao e Resultado para ver sua pontuacao\n\n| Aula | Topico | Questoes |\n|------|--------|-----------|\n| 01 | Ciencia de Dados e Big Data em Negocios | Q1 a Q8 |\n| 02 | Python para Ciencia de Dados | Q9 a Q16 |\n| 03 | Estatistica Descritiva Aplicada | Q17 a Q24 |\n| 04 | Probabilidade Aplicada a Negocios | Q25 a Q32 |\n| 05 | Inferencia Estatistica | Q33 a Q40 |\n\n> **Meta de aprovacao:** 28 acertos ou mais (70% de 40).`
+        },
+        {
+            cell_type: "code", execution_count: null, id: "c1", metadata: {}, outputs: [],
+            source: `# ================================================================
+#  AULA 01 — Ciencia de Dados & Big Data em Negocios
+# ================================================================
+#
+# Q1. Qual das seguintes afirmacoes melhor define Ciencia de Dados?
+#   a) Tecnicas exclusivamente para armazenar grandes volumes de dados
+#   b) Area que combina estatistica, computacao e dominio de negocio para extrair valor
+#   c) Sistema de banco de dados para consultas analiticas
+#   d) Linguagem de programacao voltada para machine learning
+#
+# Q2. Quais sao os 5 Vs do Big Data?
+#   a) Velocidade, Volume, Variedade, Veracidade, Valor
+#   b) Volume, Variancia, Versao, Visao, Validacao
+#   c) Velocidade, Volume, Validacao, Veracidade, Vantagem
+#   d) Variedade, Velocidade, Volume, Virtualidade, Validacao
+#
+# Q3. No ciclo CRISP-DM, qual fase vem logo APOS a compreensao do negocio?
+#   a) Modelagem
+#   b) Avaliacao
+#   c) Compreensao dos dados
+#   d) Implantacao
+#
+# Q4. O tipo de dados mais abundante nas empresas (~65% do volume corporativo) e:
+#   a) Estruturado
+#   b) Semiestruturado
+#   c) Nao estruturado
+#   d) Transacional
+#
+# Q5. A variavel 'numero de compras realizadas no ultimo mes' e classificada como:
+#   a) Qualitativa nominal
+#   b) Qualitativa ordinal
+#   c) Quantitativa continua
+#   d) Quantitativa discreta
+#
+# Q6. O papel do Engenheiro de Dados em um time de CD e principalmente:
+#   a) Criar modelos preditivos e executar experimentos A/B
+#   b) Construir e manter pipelines de ingestao, transformacao e armazenamento de dados
+#   c) Comunicar insights para stakeholders de negocio
+#   d) Definir a estrategia de produto com base em dados
+#
+# Q7. Qual principio alerta que a qualidade dos dados de entrada determina a qualidade dos resultados?
+#   a) Big Bang Theory
+#   b) GIGO - Garbage In, Garbage Out
+#   c) Lei de Moore
+#   d) Principio de Pareto
+#
+# Q8. Qual porcentagem do conteudo assistido na Netflix vem de recomendacoes (dado da aula)?
+#   a) 40%
+#   b) 60%
+#   c) 80%
+#   d) 95%
+#
+respostas_aula01 = {
+    'q1': '',   # << preencha com 'a', 'b', 'c' ou 'd'
+    'q2': '',
+    'q3': '',
+    'q4': '',
+    'q5': '',
+    'q6': '',
+    'q7': '',
+    'q8': '',
+}
+print('Aula 01 registrada:', {k: v if v else '???' for k, v in respostas_aula01.items()})`
+        },
+        {
+            cell_type: "code", execution_count: null, id: "c2", metadata: {}, outputs: [],
+            source: `# ================================================================
+#  AULA 02 — Python para Ciencia de Dados
+# ================================================================
+#
+# Q9. Qual e o tipo de dado retornado por: type(3.14)?
+#   a) int
+#   b) str
+#   c) float
+#   d) complex
+#
+# Q10. Qual estrutura de dados Python armazena pares chave-valor?
+#   a) list
+#   b) tuple
+#   c) set
+#   d) dict
+#
+# Q11. O que retorna: np.array([1, 2, 3, 4]).mean()?
+#   a) 2
+#   b) 2.5
+#   c) 3
+#   d) 10
+#
+# Q12. Qual metodo do Pandas retorna resumo estatistico (media, desvio, min, max)?
+#   a) df.info()
+#   b) df.head()
+#   c) df.describe()
+#   d) df.dtypes
+#
+# Q13. Como selecionar apenas as linhas onde 'receita' e maior que 1000?
+#   a) df[df['receita'] == 1000]
+#   b) df[df['receita'] > 1000]
+#   c) df.select('receita > 1000')
+#   d) df.filter('receita', 1000)
+#
+# Q14. Qual biblioteca Python e usada para graficos estatisticos de alto nivel?
+#   a) NumPy
+#   b) SciPy
+#   c) Seaborn
+#   d) Scikit-learn
+#
+# Q15. O que faz: df.groupby('canal')['receita'].mean()?
+#   a) Filtra linhas onde canal e igual a media de receita
+#   b) Calcula a media de receita para cada canal
+#   c) Conta o numero de valores unicos de canal
+#   d) Remove duplicatas agrupando por canal e receita
+#
+# Q16. Qual e a diferenca principal entre lista e tupla em Python?
+#   a) Listas sao ordenadas e tuplas nao
+#   b) Tuplas sao imutaveis; listas sao mutaveis
+#   c) Listas armazenam apenas numeros; tuplas qualquer tipo
+#   d) Tuplas sao indexadas a partir de 1
+#
+respostas_aula02 = {
+    'q9':  '',   # << preencha com 'a', 'b', 'c' ou 'd'
+    'q10': '',
+    'q11': '',
+    'q12': '',
+    'q13': '',
+    'q14': '',
+    'q15': '',
+    'q16': '',
+}
+print('Aula 02 registrada:', {k: v if v else '???' for k, v in respostas_aula02.items()})`
+        },
+        {
+            cell_type: "code", execution_count: null, id: "c3", metadata: {}, outputs: [],
+            source: `# ================================================================
+#  AULA 03 — Estatistica Descritiva Aplicada
+# ================================================================
+#
+# Q17. Salarios: media=R$5.000, mediana=R$3.200, moda=R$2.800.
+#      Isso indica sobre a distribuicao:
+#   a) Distribuicao simetrica
+#   b) Assimetria positiva (cauda a direita)
+#   c) Assimetria negativa (cauda a esquerda)
+#   d) Distribuicao uniforme
+#
+# Q18. Se o desvio padrao de um conjunto e zero, isso significa:
+#   a) Todos os valores sao iguais a media
+#   b) Os dados estao muito dispersos
+#   c) A media e igual a zero
+#   d) Existem muitos outliers
+#
+# Q19. Qual e o IQR de um dataset com Q1=20 e Q3=50?
+#   a) 30
+#   b) 35
+#   c) 70
+#   d) 25
+#
+# Q20. Pela regra 68-95-99,7 da Normal, ~95% dos dados esta dentro de:
+#   a) 1 desvio-padrao da media
+#   b) 2,5 desvios-padrao da media
+#   c) 2 desvios-padrao da media
+#   d) 3 desvios-padrao da media
+#
+# Q21. O coeficiente de correlacao de Pearson pode assumir valores entre:
+#   a) 0 e 1
+#   b) -1 e 0
+#   c) -1 e 1
+#   d) 0 e +infinito
+#
+# Q22. Um boxplot com a mediana muito proxima de Q3 indica:
+#   a) Distribuicao simetrica
+#   b) Assimetria negativa (cauda a esquerda)
+#   c) Curtose elevada
+#   d) Assimetria positiva (cauda a direita)
+#
+# Q23. A variancia amostral com ddof=1 divide a soma dos quadrados por:
+#   a) n
+#   b) n - 1
+#   c) n + 1
+#   d) n ao quadrado
+#
+# Q24. Qual afirmacao sobre a correlacao de Pearson e VERDADEIRA?
+#   a) Valores proximos de zero indicam relacao linear fraca ou inexistente
+#   b) Correlacao 0,9 implica que uma variavel causa a outra
+#   c) A correlacao de Pearson captura relacoes nao-lineares complexas
+#   d) Correlacao negativa significa que as variaveis sao independentes
+#
+respostas_aula03 = {
+    'q17': '',   # << preencha com 'a', 'b', 'c' ou 'd'
+    'q18': '',
+    'q19': '',
+    'q20': '',
+    'q21': '',
+    'q22': '',
+    'q23': '',
+    'q24': '',
+}
+print('Aula 03 registrada:', {k: v if v else '???' for k, v in respostas_aula03.items()})`
+        },
+        {
+            cell_type: "code", execution_count: null, id: "c4", metadata: {}, outputs: [],
+            source: `# ================================================================
+#  AULA 04 — Probabilidade Aplicada a Negocios
+# ================================================================
+#
+# Q25. P(A)=0,4 e P(B)=0,3; A e B sao mutuamente exclusivos.
+#      Qual e P(A uniao B)?
+#   a) 0,12
+#   b) 0,70
+#   c) 0,58
+#   d) 1,00
+#
+# Q26. A probabilidade condicional P(A|B) e calculada por:
+#   a) P(A) x P(B)
+#   b) P(A intersecao B) / P(B)
+#   c) P(A) + P(B)
+#   d) P(A intersecao B) / P(A)
+#
+# Q27. Moeda honesta lancada 5 vezes. P(exatamente 3 caras) = ?
+#      Dica: use distribuicao Binomial
+#   a) 0,250
+#   b) 0,3125
+#   c) 0,500
+#   d) 0,125
+#
+# Q28. Loja recebe em media 4 clientes/hora (Poisson).
+#      P(receber 0 clientes em 1 hora) aprox.:
+#   a) 0,0183
+#   b) 0,0733
+#   c) 0,1465
+#   d) 0,0366
+#
+# Q29. O Teorema de Bayes e expresso corretamente por:
+#   a) P(A|B) = P(B|A) x P(A) / P(B)
+#   b) P(A|B) = P(A) x P(B)
+#   c) P(A|B) = P(A intersecao B) x P(A)
+#   d) P(B|A) = P(A) x P(B) / P(A intersecao B)
+#
+# Q30. X segue Normal com media=100 e desvio=15.
+#      Qual e o Z-score para X=130?
+#   a) 1,0
+#   b) 2,0
+#   c) 3,0
+#   d) 0,5
+#
+# Q31. O que a simulacao de Monte Carlo faz?
+#   a) Calcula exatamente a probabilidade analitica de um evento
+#   b) Usa amostras aleatorias repetidas para estimar probabilidades
+#   c) Encontra o valor minimo de uma funcao de custo
+#   d) Ajusta parametros de um modelo por gradiente descendente
+#
+# Q32. Se A e B sao eventos independentes, P(A intersecao B) e igual a:
+#   a) P(A) + P(B)
+#   b) P(A|B)
+#   c) P(A) x P(B)
+#   d) P(A) / P(B)
+#
+respostas_aula04 = {
+    'q25': '',   # << preencha com 'a', 'b', 'c' ou 'd'
+    'q26': '',
+    'q27': '',
+    'q28': '',
+    'q29': '',
+    'q30': '',
+    'q31': '',
+    'q32': '',
+}
+print('Aula 04 registrada:', {k: v if v else '???' for k, v in respostas_aula04.items()})`
+        },
+        {
+            cell_type: "code", execution_count: null, id: "c5", metadata: {}, outputs: [],
+            source: `# ================================================================
+#  AULA 05 — Inferencia Estatistica
+# ================================================================
+#
+# Q33. O Teorema Central do Limite afirma que, para amostras grandes:
+#   a) A variancia amostral converge para zero
+#   b) A distribuicao das medias amostrais se aproxima de uma Normal
+#   c) A mediana amostral sempre iguala a media populacional
+#   d) A distribuicao dos dados individuais se torna normal
+#
+# Q34. Erro padrao: EP = s / raiz(n). Com s=30 e n=100, EP = ?
+#   a) 0,3
+#   b) 30
+#   c) 3,0
+#   d) 300
+#
+# Q35. IC 95% para tempo de carregamento: [2,1s ; 2,9s].
+#      Qual e a interpretacao CORRETA?
+#   a) Ha 95% de chance de a media verdadeira estar neste intervalo especifico
+#   b) 95% das observacoes individuais estao entre 2,1s e 2,9s
+#   c) 95% dos ICs construidos por este metodo conterao a media verdadeira
+#   d) A variancia do tempo de carregamento e de 0,8s
+#
+# Q36. p-valor = 0,03 e alfa = 0,05. Decisao correta:
+#   a) Nao rejeitar H0, pois p > alfa
+#   b) Rejeitar H0, pois p < alfa
+#   c) Aceitar H1 definitivamente como verdadeira
+#   d) Repetir o experimento, pois o resultado e inconclusivo
+#
+# Q37. Para comparar a receita media de 3 grupos de clientes, o teste adequado e:
+#   a) Teste t de 2 amostras
+#   b) Qui-quadrado de independencia
+#   c) ANOVA unidirecional
+#   d) Teste de Wilcoxon
+#
+# Q38. p < 0,001 com d de Cohen = 0,08. Como interpretar?
+#   a) Efeito grande e estatisticamente significativo
+#   b) Estatisticamente significativo, mas efeito pratico muito pequeno
+#   c) Nao significativo, apesar do p-valor baixo
+#   d) Indica Erro Tipo II muito alto
+#
+# Q39. Teste qui-quadrado com tabela 3x2. Quantos graus de liberdade?
+#   a) 3
+#   b) 4
+#   c) 2
+#   d) 6
+#
+# Q40. Qual pratica caracteriza o 'p-hacking'?
+#   a) Definir a hipotese nula antes de coletar dados
+#   b) Executar multiplos testes ate encontrar p < 0,05 e reportar so o significativo
+#   c) Usar correcao de Bonferroni para multiplas comparacoes
+#   d) Calcular poder estatistico antes do experimento
+#
+respostas_aula05 = {
+    'q33': '',   # << preencha com 'a', 'b', 'c' ou 'd'
+    'q34': '',
+    'q35': '',
+    'q36': '',
+    'q37': '',
+    'q38': '',
+    'q39': '',
+    'q40': '',
+}
+print('Aula 05 registrada:', {k: v if v else '???' for k, v in respostas_aula05.items()})`
+        },
+        {
+            cell_type: "code", execution_count: null, id: "c6", metadata: {}, outputs: [],
+            source: `# ================================================================
+#  CORRECAO E RESULTADO
+#  Execute esta celula apos preencher todas as questoes acima
+# ================================================================
+
+gabarito = {
+    'q1' : 'b', 'q2' : 'a', 'q3' : 'c', 'q4' : 'c', 'q5' : 'd',
+    'q6' : 'b', 'q7' : 'b', 'q8' : 'c',
+    'q9' : 'c', 'q10': 'd', 'q11': 'b', 'q12': 'c', 'q13': 'b',
+    'q14': 'c', 'q15': 'b', 'q16': 'b',
+    'q17': 'b', 'q18': 'a', 'q19': 'a', 'q20': 'c', 'q21': 'c',
+    'q22': 'b', 'q23': 'b', 'q24': 'a',
+    'q25': 'b', 'q26': 'b', 'q27': 'b', 'q28': 'a', 'q29': 'a',
+    'q30': 'b', 'q31': 'b', 'q32': 'c',
+    'q33': 'b', 'q34': 'c', 'q35': 'c', 'q36': 'b', 'q37': 'c',
+    'q38': 'b', 'q39': 'c', 'q40': 'b',
+}
+
+todas = {}
+todas.update(respostas_aula01)
+todas.update(respostas_aula02)
+todas.update(respostas_aula03)
+todas.update(respostas_aula04)
+todas.update(respostas_aula05)
+
+aulas = [
+    ('Aula 01 - Big Data & CD',     [f'q{i}' for i in range(1, 9)]),
+    ('Aula 02 - Python',            [f'q{i}' for i in range(9, 17)]),
+    ('Aula 03 - Estat. Descritiva', [f'q{i}' for i in range(17, 25)]),
+    ('Aula 04 - Probabilidade',     [f'q{i}' for i in range(25, 33)]),
+    ('Aula 05 - Inferencia',        [f'q{i}' for i in range(33, 41)]),
+]
+
+print('=' * 60)
+print('   SIMULADO FINAL - RESULTADO')
+print('=' * 60)
+
+total = 0
+erros = []
+for nome, qs in aulas:
+    acertos = sum(1 for q in qs if todas.get(q, '').lower() == gabarito[q])
+    total += acertos
+    barra = '#' * acertos + '.' * (8 - acertos)
+    print(f'  {nome:<30}  [{barra}]  {acertos}/8')
+    for q in qs:
+        sua = todas.get(q, '').lower()
+        if sua != gabarito[q]:
+            erros.append((q.upper(), sua or '???', gabarito[q]))
+
+print('-' * 60)
+pct = total / 40 * 100
+print(f'  TOTAL: {total}/40   ({pct:.1f}%)')
+print('-' * 60)
+
+if total >= 28:
+    status = 'APROVADO    - Otimo desempenho!'
+elif total >= 20:
+    status = 'REGULAR     - Revise os pontos errados'
+else:
+    status = 'REPROVADO   - Retome as aulas antes da prova'
+print(f'  Status: {status}')
+print('=' * 60)
+
+if erros:
+    print(f'\\n  Questoes erradas ({len(erros)}):')
+    for q, sua, corr in erros:
+        print(f'    {q}: voce marcou [{sua}]  |  correto: [{corr}]')
+else:
+    print('\\n  Gabarito 100% correto! Parabens!')`
+        }
+    ];
+
+    const nb = {
+        nbformat: 4,
+        nbformat_minor: 5,
+        metadata: {
+            kernelspec: { display_name: "Python 3", language: "python", name: "python3" },
+            language_info: { name: "python", version: "3.11.0" }
+        },
+        cells: cells
+    };
+
+    const json = JSON.stringify(nb, null, 1);
+    const blob = new Blob([json], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Simulado_Aulas_01_05.ipynb';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 </script>
 </body>
 </html>
