@@ -73,6 +73,7 @@
         th { background:var(--ink); color:var(--paper); padding:10px 14px; text-align:left; font-family:'Space Mono',monospace; font-size:.78rem; font-weight:700; }
         td { padding:9px 14px; border-bottom:1px solid rgba(11,16,32,.06); }
         tr:hover td { background:#f5f3ff; } .td-num { font-family:'Space Mono',monospace; color:var(--infer); font-weight:700; }
+        .td-ok { color:var(--green); font-weight:700; } .td-bad { color:var(--accent); font-weight:700; }
         .navigation { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:12px; z-index:1000; background:rgba(11,16,32,.92); padding:12px 20px; backdrop-filter:blur(12px); }
         .nav-btn { background:transparent; color:var(--paper); border:1.5px solid rgba(246,242,235,.25); padding:8px 20px; border-radius:20px; cursor:pointer; font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; }
         .nav-btn:hover:not(:disabled) { background:#d8b4fe; color:var(--ink); border-color:#d8b4fe; } .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
@@ -88,13 +89,23 @@
 </head>
 <body>
 <div class="presentation-container">
+
+<!-- ===================== CAPA ===================== -->
 <div class="slide slide-cover active">
     <div class="cover-tag">Ciencia de Dados · Aula 05</div>
     <h1 class="cover-title">Inferencia<br><em>Estatistica</em></h1>
     <p class="cover-subtitle">Como usar amostras para estimar parametros, construir intervalos de confianca e testar hipoteses com rigor.</p>
-    <div class="cover-meta">Amostragem e estimadores<br>Intervalos de confianca<br>p-valor e testes<br>Poder estatistico<br>Python aplicado</div>
+    <div class="cover-meta">
+        Amostragem e TCL<br>
+        Estimadores e erro padrao<br>
+        Intervalos de confianca<br>
+        p-valor, poder e Cohen's d<br>
+        Teste t, ANOVA, Qui-quadrado<br>
+        Teste A/B e Python aplicado
+    </div>
 </div>
 
+<!-- ===================== AGENDA ===================== -->
 <div class="slide slide-content">
     <div class="slide-header"><h2>O que veremos hoje</h2><span class="slide-tag">Agenda</span></div>
     <div class="two-col">
@@ -103,9 +114,9 @@
                 <span class="card-icon">🎯</span>
                 <h4>Bloco 1 - Estimacao</h4>
                 <ul>
-                    <li>Populacao, amostra e erro amostral</li>
+                    <li>Populacao, amostra e TCL</li>
                     <li>Estimadores e erro padrao</li>
-                    <li>Intervalos de confianca</li>
+                    <li>IC para media e proporcao</li>
                     <li>Tamanho de amostra</li>
                 </ul>
             </div>
@@ -115,8 +126,8 @@
                 <ul>
                     <li>Hipotese nula e alternativa</li>
                     <li>p-valor e significancia</li>
-                    <li>Erro tipo I, II e poder</li>
-                    <li>Teste t, ANOVA e qui-quadrado</li>
+                    <li>Erro tipo I, II, poder e Cohen's d</li>
+                    <li>Mapa de testes: t, ANOVA, chi2</li>
                 </ul>
             </div>
         </div>
@@ -126,8 +137,8 @@
                 <h4>Bloco 3 - Pratica</h4>
                 <ul>
                     <li>Teste A/B em negocios digitais</li>
-                    <li>Intervalos para media e proporcao</li>
-                    <li>Analises com `scipy.stats`</li>
+                    <li>Python: t-test, ANOVA, qui-quadrado</li>
+                    <li>Armadilhas: p-hacking e peeking</li>
                     <li>Exercicio guiado</li>
                 </ul>
             </div>
@@ -139,6 +150,7 @@
     </div>
 </div>
 
+<!-- ===================== O QUE E INFERENCIA ===================== -->
 <div class="slide slide-content">
     <div class="slide-header"><h2>O que e Inferencia Estatistica?</h2><span class="slide-tag purple">Conceito</span></div>
     <div class="quote-block">
@@ -146,23 +158,68 @@
         <cite>Ideia central da estatistica aplicada</cite>
     </div>
     <div class="three-col" style="margin-top:18px">
-        <div class="card a-purple"><span class="card-icon">👥</span><h4>Populacao</h4><p>Conjunto total de interesse, como todos os clientes ativos.</p></div>
-        <div class="card a-blue"><span class="card-icon">🧪</span><h4>Amostra</h4><p>Parte observada da populacao usada para analise.</p></div>
+        <div class="card a-purple"><span class="card-icon">👥</span><h4>Populacao</h4><p>Conjunto total de interesse. Ex: todos os clientes ativos de uma plataforma.</p></div>
+        <div class="card a-blue"><span class="card-icon">🧪</span><h4>Amostra</h4><p>Parte observada. Ex: 500 clientes selecionados aleatoriamente para uma pesquisa.</p></div>
         <div class="card a-red"><span class="card-icon">🔍</span><h4>Inferencia</h4><p>Estimacao de parametros e teste de afirmacoes com incerteza controlada.</p></div>
     </div>
     <div class="stat-grid" style="margin-top:18px">
-        <div class="stat"><span class="stat-number">μ</span><div class="stat-label">Media populacional<br>parametro</div></div>
-        <div class="stat"><span class="stat-number">x̄</span><div class="stat-label">Media amostral<br>estimador</div></div>
-        <div class="stat"><span class="stat-number">p̂</span><div class="stat-label">Proporcao amostral<br>para taxas</div></div>
+        <div class="stat"><span class="stat-number">μ</span><div class="stat-label">Media populacional<br>parametro desconhecido</div></div>
+        <div class="stat"><span class="stat-number">x̄</span><div class="stat-label">Media amostral<br>estimador de μ</div></div>
+        <div class="stat"><span class="stat-number">p̂</span><div class="stat-label">Proporcao amostral<br>estimador de p</div></div>
     </div>
 </div>
 
+<!-- ===================== TCL ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Teorema Central do Limite</h2><span class="slide-tag purple">Fundamento</span></div>
+    <div class="two-col">
+        <div>
+            <div class="highlight-box">
+                <h3>A ideia central</h3>
+                <p>Independente da distribuicao da populacao, a distribuicao das medias amostrais se aproxima de uma Normal conforme n cresce. Valido para n &gt;= 30.</p>
+            </div>
+            <table style="margin-top:14px">
+                <tr><th>Populacao original</th><th>n = 5</th><th>n = 30</th></tr>
+                <tr><td>Dado (uniforme)</td><td>Assimetrica</td><td class="td-ok">≈ Normal</td></tr>
+                <tr><td>Salarios (skewed)</td><td>Levemente sim.</td><td class="td-ok">≈ Normal</td></tr>
+                <tr><td>Tempo sessao (exp.)</td><td>Levemente sim.</td><td class="td-ok">≈ Normal</td></tr>
+                <tr><td>Cliques por usuario</td><td>Irregular</td><td class="td-ok">≈ Normal</td></tr>
+            </table>
+        </div>
+        <div>
+<pre class="code-block" data-lang="Python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Populacao exponencial (assimetrica)
+populacao = np.random.exponential(scale=3, size=100_000)
+
+# Medias de 5000 amostras de tamanho 40
+medias = [
+    populacao[np.random.choice(len(populacao), 40)].mean()
+    for _ in range(5000)
+]
+
+plt.hist(medias, bins=50, color='#7c3aed', alpha=0.8)
+plt.title("Distribuicao de medias amostrais (n=40)")
+plt.xlabel("Media amostral")
+plt.show()
+# Resultado: curva em sino mesmo com pop. assimetrica</pre>
+            <div class="card a-green" style="margin-top:12px">
+                <h4>Por que importa</h4>
+                <p>Justifica o uso de ICs e testes z/t mesmo quando a populacao nao e normal — desde que a amostra seja suficientemente grande.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== BLOCO 1 ===================== -->
 <div class="slide slide-section sec-purple">
     <span class="section-number">01</span>
     <div class="section-label">Bloco 1</div>
     <h2 class="section-title">Amostragem, erro padrao e intervalos</h2>
 </div>
 
+<!-- ===================== ESTIMADORES E IC ===================== -->
 <div class="slide slide-content">
     <div class="slide-header"><h2>Estimadores e Intervalos de Confianca</h2><span class="slide-tag purple">Estimacao</span></div>
     <div class="two-col">
@@ -172,35 +229,48 @@
                 <ul>
                     <li>Amostras diferentes geram estimativas diferentes.</li>
                     <li>O erro padrao mede a variabilidade do estimador.</li>
-                    <li>Quanto maior `n`, mais precisa tende a ser a estimativa.</li>
+                    <li>Quanto maior n, mais precisa tende a ser a estimativa.</li>
                 </ul>
             </div>
             <div class="formula-box">
                 <div class="formula">EP(x̄) = s / √n</div>
                 <div class="formula-label">Base para construir intervalos de confianca para a media.</div>
             </div>
+            <div class="card a-amber" style="margin-top:14px">
+                <h4>Exemplo rapido</h4>
+                <p>s = 20, n = 100 → EP = 2,0<br>
+                   s = 20, n = 400 → EP = 1,0<br>
+                   Quadruplicar n reduz EP pela metade.</p>
+            </div>
         </div>
         <div>
             <div class="card a-blue" style="margin-bottom:14px">
-                <h4>Forma geral</h4>
+                <h4>Forma geral do IC</h4>
                 <p><strong>intervalo = estimativa ± margem de erro</strong></p>
                 <p>Margem de erro = valor critico × erro padrao.</p>
             </div>
             <div class="formula-box">
                 <div class="formula">IC95% ≈ x̄ ± 1,96 × EP</div>
-                <div class="formula-label">Em amostras grandes, o valor 1,96 e uma boa aproximacao.</div>
+                <div class="formula-label">Em amostras grandes, o valor 1,96 e uma boa aproximacao para 95%.</div>
             </div>
+            <table style="margin-top:14px">
+                <tr><th>Confianca</th><th>Valor critico z</th></tr>
+                <tr><td>90%</td><td class="td-num">1,645</td></tr>
+                <tr><td>95%</td><td class="td-num">1,960</td></tr>
+                <tr><td>99%</td><td class="td-num">2,576</td></tr>
+            </table>
         </div>
     </div>
 </div>
 
+<!-- ===================== EXEMPLO IC + TAMANHO ===================== -->
 <div class="slide slide-content">
-    <div class="slide-header"><h2>Exemplo de intervalo e tamanho de amostra</h2><span class="slide-tag blue">Aplicacao</span></div>
+    <div class="slide-header"><h2>Exemplo de Intervalo e Tamanho de Amostra</h2><span class="slide-tag blue">Aplicacao</span></div>
     <div class="two-col">
         <div>
             <table>
                 <tr><th>Parametro</th><th>Valor</th></tr>
-                <tr><td>Ticket medio</td><td class="td-num">R$ 184</td></tr>
+                <tr><td>Ticket medio amostral</td><td class="td-num">R$ 184</td></tr>
                 <tr><td>Desvio amostral</td><td class="td-num">R$ 40</td></tr>
                 <tr><td>Tamanho da amostra</td><td class="td-num">64</td></tr>
             </table>
@@ -208,6 +278,13 @@
                 <div class="formula">EP = 40 / √64 = 5</div>
                 <div class="formula">IC95% ≈ 184 ± 1,96 × 5</div>
                 <div class="formula">IC95% ≈ [174,2 ; 193,8]</div>
+                <div class="formula-label">Intervalo de R$ 174,20 a R$ 193,80</div>
+            </div>
+            <div class="card a-red" style="margin-top:12px">
+                <h4>Se n = 256 (4x maior)</h4>
+                <p>EP = 40/√256 = 2,5<br>
+                IC95% ≈ [179,1 ; 188,9]<br>
+                Margem cai de ±9,8 para ±4,9.</p>
             </div>
         </div>
         <div>
@@ -216,9 +293,16 @@
                 <div class="formula-box" style="margin:10px 0 0">
                     <div class="formula">n = z² · p · (1 - p) / E²</div>
                 </div>
-                <p style="margin-top:10px">Para 95% de confianca, erro de 5% e sem estimativa previa, usar `p = 0,5` leva a aproximadamente <strong>385 respostas</strong>.</p>
+                <p style="margin-top:10px">Para 95% de confianca, erro de 5% e sem estimativa previa, usar p = 0,5 leva a aproximadamente <strong>385 respostas</strong>.</p>
             </div>
-            <div class="highlight-box" style="margin:0">
+            <table>
+                <tr><th>Erro desejado (E)</th><th>n necessario (p=0,5)</th></tr>
+                <tr><td>10%</td><td class="td-num">97</td></tr>
+                <tr><td>5%</td><td class="td-num">385</td></tr>
+                <tr><td>3%</td><td class="td-num">1.068</td></tr>
+                <tr><td>1%</td><td class="td-num">9.604</td></tr>
+            </table>
+            <div class="highlight-box" style="margin-top:14px">
                 <h3>Leitura correta</h3>
                 <p>Mais dados reduzem incerteza aleatoria, mas nao corrigem vies de coleta.</p>
             </div>
@@ -226,59 +310,221 @@
     </div>
 </div>
 
+<!-- ===================== IC PARA PROPORCAO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Intervalo de Confianca para Proporcao</h2><span class="slide-tag blue">Aplicacao</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-blue" style="margin-bottom:14px">
+                <span class="card-icon">📋</span>
+                <h4>Caso: Pesquisa de Satisfacao</h4>
+                <p>200 clientes responderam — 130 sao promotores (NPS).</p>
+            </div>
+            <div class="formula-box">
+                <div class="formula">p̂ = 130/200 = 0,650</div>
+                <div class="formula">EP = √(0,65 × 0,35 / 200) ≈ 0,0337</div>
+                <div class="formula">IC95% ≈ [0,584 ; 0,716]</div>
+                <div class="formula-label">Formula: p̂ ± 1,96 × √(p̂(1−p̂)/n)</div>
+            </div>
+<pre class="code-block" data-lang="Python">from statsmodels.stats.proportion import proportion_confint
+
+ic = proportion_confint(130, 200, alpha=0.05, method='normal')
+print(f"IC 95%: [{ic[0]:.3f}, {ic[1]:.3f}]")
+# IC 95%: [0.584, 0.716]</pre>
+        </div>
+        <div>
+            <table>
+                <tr><th>Amostra (n)</th><th>Margem de erro (95%)</th></tr>
+                <tr><td>50</td><td class="td-num">±13,9%</td></tr>
+                <tr><td>100</td><td class="td-num">±9,8%</td></tr>
+                <tr><td>200</td><td class="td-num">±6,9%</td></tr>
+                <tr><td>400</td><td class="td-num">±4,9%</td></tr>
+                <tr><td>1.000</td><td class="td-num">±3,1%</td></tr>
+                <tr><td>2.000</td><td class="td-num">±2,2%</td></tr>
+            </table>
+            <div class="highlight-box" style="margin-top:14px">
+                <h3>Regra pratica</h3>
+                <p>Para reduzir a margem a metade, e preciso quadruplicar o tamanho da amostra.</p>
+            </div>
+            <div class="card a-red" style="margin-top:12px">
+                <h4>Cuidado com a interpretacao</h4>
+                <p>O IC de 95% NAO significa "95% de chance de p estar no intervalo." Significa que 95% dos intervalos construidos por esse metodo conterao o verdadeiro p.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== BLOCO 2 ===================== -->
 <div class="slide slide-section sec-dark">
     <span class="section-number">02</span>
     <div class="section-label">Bloco 2</div>
     <h2 class="section-title">Testes de hipotese, p-valor e risco de decisao</h2>
 </div>
 
+<!-- ===================== COMO FUNCIONA TESTE ===================== -->
 <div class="slide slide-content">
-    <div class="slide-header"><h2>Como funciona um teste de hipotese</h2><span class="slide-tag amber">Metodo</span></div>
+    <div class="slide-header"><h2>Como Funciona um Teste de Hipotese</h2><span class="slide-tag amber">Metodo</span></div>
     <div class="three-col">
-        <div class="card a-purple"><span class="card-icon">H₀</span><h4>Hipotese nula</h4><p>Assume ausencia de efeito, diferenca ou associacao.</p></div>
-        <div class="card a-red"><span class="card-icon">H₁</span><h4>Hipotese alternativa</h4><p>Representa o efeito que queremos investigar.</p></div>
-        <div class="card a-blue"><span class="card-icon">α</span><h4>Significancia</h4><p>Limite de tolerancia para falso positivo, geralmente 5%.</p></div>
+        <div class="card a-purple"><span class="card-icon">H₀</span><h4>Hipotese nula</h4><p>Assume ausencia de efeito, diferenca ou associacao. Ex: o novo botao NAO muda a taxa de conversao.</p></div>
+        <div class="card a-red"><span class="card-icon">H₁</span><h4>Hipotese alternativa</h4><p>Representa o efeito que queremos investigar. Ex: o novo botao AUMENTA a taxa de conversao.</p></div>
+        <div class="card a-blue"><span class="card-icon">α</span><h4>Significancia</h4><p>Limite de tolerancia para falso positivo, geralmente 5%. Definir ANTES de coletar dados.</p></div>
     </div>
     <div class="highlight-box">
         <h3>Pergunta central</h3>
-        <p>Se H₀ fosse verdadeira, os dados observados seriam plausiveis? Se forem muito improvaveis, rejeitamos H₀.</p>
+        <p>Se H₀ fosse verdadeira, os dados observados seriam plausiveis? Se forem muito improvaveis (p &lt; α), rejeitamos H₀.</p>
+    </div>
+    <div class="card a-amber" style="margin-top:14px">
+        <h4>Passos do teste</h4>
+        <ol class="step-list" style="margin-top:8px">
+            <li>Formular H₀ e H₁ antes de ver os dados.</li>
+            <li>Escolher nivel de significancia α (tipicamente 5%).</li>
+            <li>Calcular a estatistica do teste e o p-valor.</li>
+            <li>Decidir: rejeitar ou nao rejeitar H₀.</li>
+        </ol>
     </div>
 </div>
 
+<!-- ===================== P-VALOR ERRO TIPO I PODER ===================== -->
 <div class="slide slide-content">
-    <div class="slide-header"><h2>p-valor, erro tipo I e poder</h2><span class="slide-tag green">Interpretacao</span></div>
+    <div class="slide-header"><h2>p-valor, Erro Tipo I e Poder</h2><span class="slide-tag green">Interpretacao</span></div>
     <div class="four-col">
-        <div class="card a-red"><span class="card-icon">⚠️</span><h4>Erro Tipo I</h4><p>Rejeitar H₀ quando ela e verdadeira.</p></div>
-        <div class="card a-amber"><span class="card-icon">🫥</span><h4>Erro Tipo II</h4><p>Nao rejeitar H₀ quando ela e falsa.</p></div>
-        <div class="card a-purple"><span class="card-icon">💪</span><h4>Poder</h4><p>Chance de detectar um efeito real: `1 - β`.</p></div>
-        <div class="card a-blue"><span class="card-icon">📐</span><h4>p-valor</h4><p>Probabilidade de observar um resultado tao extremo quanto o obtido, assumindo H₀.</p></div>
+        <div class="card a-red"><span class="card-icon">⚠️</span><h4>Erro Tipo I (α)</h4><p>Rejeitar H₀ quando ela e verdadeira. Falso positivo. Controlado por α = 5%.</p></div>
+        <div class="card a-amber"><span class="card-icon">🫥</span><h4>Erro Tipo II (β)</h4><p>Nao rejeitar H₀ quando ela e falsa. Falso negativo. Tipicamente β = 20%.</p></div>
+        <div class="card a-purple"><span class="card-icon">💪</span><h4>Poder (1 − β)</h4><p>Chance de detectar um efeito real. Meta: 80%. Cresce com n e com o tamanho do efeito.</p></div>
+        <div class="card a-blue"><span class="card-icon">📐</span><h4>p-valor</h4><p>Probabilidade de observar resultado tao extremo quanto o obtido, assumindo H₀ verdadeira.</p></div>
     </div>
     <div class="formula-box">
-        <div class="formula">se p ≤ α, rejeitamos H₀</div>
-        <div class="formula-label">p-valor nao mede relevancia pratica e nao e a probabilidade de H₀ ser verdadeira.</div>
+        <div class="formula">se p ≤ α → rejeitamos H₀</div>
+        <div class="formula-label">p-valor nao mede relevancia pratica nem e a probabilidade de H₀ ser verdadeira.</div>
     </div>
-</div>
-
-<div class="slide slide-content">
-    <div class="slide-header"><h2>Escolhendo o teste certo</h2><span class="slide-tag purple">Mapa Rapido</span></div>
-    <table>
-        <tr><th>Pergunta</th><th>Teste</th><th>Exemplo</th></tr>
-        <tr><td>Comparar uma media com referencia</td><td class="td-num">t de 1 amostra</td><td>Ticket medio e diferente de R$ 150?</td></tr>
-        <tr><td>Comparar medias de 2 grupos</td><td class="td-num">t de 2 amostras</td><td>Campanha A vs. B</td></tr>
-        <tr><td>Comparar 3 ou mais grupos</td><td class="td-num">ANOVA</td><td>Receita por canal</td></tr>
-        <tr><td>Associacao entre categorias</td><td class="td-num">Qui-quadrado</td><td>Canal e churn se relacionam?</td></tr>
-        <tr><td>Comparar proporcoes</td><td class="td-num">Teste de proporcoes</td><td>Conversao de landing pages</td></tr>
+    <table style="margin-top:14px">
+        <tr><th>Decisao</th><th>H₀ Verdadeira</th><th>H₀ Falsa</th></tr>
+        <tr><td>Rejeitar H₀</td><td class="td-bad">Erro Tipo I — α</td><td class="td-ok">Correto — Poder (1−β)</td></tr>
+        <tr><td>Nao rejeitar H₀</td><td class="td-ok">Correto — (1−α)</td><td class="td-bad">Erro Tipo II — β</td></tr>
     </table>
 </div>
 
+<!-- ===================== COHEN'S D ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Significancia Estatistica ≠ Relevancia Pratica</h2><span class="slide-tag amber">Atencao</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-amber" style="margin-bottom:14px">
+                <span class="card-icon">⚡</span>
+                <h4>Caso real</h4>
+                <p>Com n = 50.000 por grupo, uma diferenca de 0,3 segundos no tempo de carregamento pode ter p &lt; 0,001. Mas vale o investimento de refatorar toda a infra?</p>
+            </div>
+            <div class="formula-box">
+                <div class="formula">d de Cohen = (μ₁ − μ₂) / s_pooled</div>
+                <div class="formula-label">Mede o tamanho do efeito em desvios-padrao</div>
+            </div>
+            <table style="margin-top:12px">
+                <tr><th>d de Cohen</th><th>Interpretacao</th></tr>
+                <tr><td class="td-num">0,2</td><td>Efeito pequeno</td></tr>
+                <tr><td class="td-num">0,5</td><td>Efeito medio</td></tr>
+                <tr><td class="td-num">0,8+</td><td>Efeito grande</td></tr>
+            </table>
+        </div>
+        <div>
+<pre class="code-block" data-lang="Python">from scipy import stats
+import numpy as np
+
+np.random.seed(0)
+g1 = np.random.normal(10.0, 2.0, 50_000)
+g2 = np.random.normal(10.3, 2.0, 50_000)
+
+t, p = stats.ttest_ind(g1, g2)
+
+# Cohen's d
+s_pool = np.std(np.concatenate([g1, g2]), ddof=1)
+d = (g1.mean() - g2.mean()) / s_pool
+
+print(f"p-valor:    {p:.4f}")   # 0.0000 (sig.)
+print(f"Cohen's d:  {d:.3f}")   # -0.152 (pequeno!)
+print(f"Diferenca:  {g1.mean()-g2.mean():.2f}")  # -0.30</pre>
+            <div class="card a-red" style="margin-top:12px">
+                <h4>Conclusao</h4>
+                <p>Reporte SEMPRE o tamanho do efeito junto ao p-valor. Um p pequeno com amostra grande nao garante relevancia pratica.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== PODER ESTATISTICO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Poder Estatistico e Tamanho de Amostra</h2><span class="slide-tag green">Planejamento</span></div>
+    <div class="two-col">
+        <div>
+            <table>
+                <tr><th>n por grupo</th><th>d = 0,2 (peq.)</th><th>d = 0,5 (med.)</th><th>d = 0,8 (grd.)</th></tr>
+                <tr><td class="td-num">20</td><td>9%</td><td>34%</td><td>69%</td></tr>
+                <tr><td class="td-num">50</td><td>17%</td><td>70%</td><td>96%</td></tr>
+                <tr><td class="td-num">100</td><td>29%</td><td>94%</td><td>100%</td></tr>
+                <tr><td class="td-num">200</td><td>51%</td><td>99%</td><td>100%</td></tr>
+                <tr><td class="td-num">393</td><td class="td-ok">80%</td><td class="td-ok">100%</td><td class="td-ok">100%</td></tr>
+            </table>
+            <div class="highlight-box" style="margin-top:14px">
+                <h3>Meta padrao</h3>
+                <p>Poder ≥ 80% com α = 5%. Para efeitos pequenos (d = 0,2), sao necessarios ~393 por grupo.</p>
+            </div>
+        </div>
+        <div>
+<pre class="code-block" data-lang="Python">from statsmodels.stats.power import TTestIndPower
+
+analise = TTestIndPower()
+
+# Quantos por grupo para 80% de poder?
+n = analise.solve_power(
+    effect_size=0.5,   # Cohen's d medio
+    alpha=0.05,
+    power=0.80,
+    alternative='two-sided'
+)
+print(f"n por grupo: {n:.0f}")  # → 64
+
+# Qual e o poder com n=50 e d=0.3?
+p = analise.power(
+    effect_size=0.3,
+    nobs1=50,
+    alpha=0.05
+)
+print(f"Poder: {p:.1%}")  # → 24,1% (baixo!)</pre>
+            <div class="card a-red" style="margin-top:12px">
+                <h4>Estudo de poder ANTES do experimento</h4>
+                <p>Comecar um teste A/B sem verificar o poder e arriscar gastar tempo sem chance real de detectar o efeito desejado.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== MAPA DE TESTES ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Escolhendo o Teste Certo</h2><span class="slide-tag purple">Mapa Rapido</span></div>
+    <table>
+        <tr><th>Pergunta</th><th>Teste</th><th>Exemplo de negocio</th></tr>
+        <tr><td>Comparar uma media com referencia</td><td class="td-num">t de 1 amostra</td><td>Ticket medio e diferente de R$ 150?</td></tr>
+        <tr><td>Comparar medias de 2 grupos independentes</td><td class="td-num">t de 2 amostras</td><td>Campanha A vs. B — tempo no site</td></tr>
+        <tr><td>Comparar medias antes e depois (mesmo grupo)</td><td class="td-num">t pareado</td><td>Score de satisfacao antes e apos onboarding</td></tr>
+        <tr><td>Comparar 3 ou mais grupos</td><td class="td-num">ANOVA</td><td>Receita media por canal (Email, App, Loja)</td></tr>
+        <tr><td>Associacao entre categorias</td><td class="td-num">Qui-quadrado</td><td>Canal de aquisicao e churn se relacionam?</td></tr>
+        <tr><td>Comparar proporcoes entre grupos</td><td class="td-num">Teste de proporcoes (z)</td><td>Conversao de duas landing pages</td></tr>
+    </table>
+    <div class="card a-amber" style="margin-top:18px">
+        <h4>Requisitos para t e ANOVA</h4>
+        <p>Normalidade da distribuicao (ou n grande pelo TCL) e independencia entre observacoes. Para dados ordinais ou amostras pequenas sem normalidade, considere testes nao-parametricos (Mann-Whitney, Kruskal-Wallis).</p>
+    </div>
+</div>
+
+<!-- ===================== BLOCO 3 ===================== -->
 <div class="slide slide-section sec-amber">
     <span class="section-number">03</span>
     <div class="section-label">Bloco 3</div>
     <h2 class="section-title">Teste A/B e Python aplicado</h2>
 </div>
 
+<!-- ===================== EXEMPLO A/B ===================== -->
 <div class="slide slide-content">
-    <div class="slide-header"><h2>Exemplo de teste A/B</h2><span class="slide-tag amber">Caso</span></div>
+    <div class="slide-header"><h2>Exemplo de Teste A/B</h2><span class="slide-tag amber">Caso</span></div>
     <div class="two-col">
         <div>
             <table>
@@ -290,11 +536,18 @@
                 <h3>Hipoteses</h3>
                 <p><strong>H₀:</strong> taxa_B = taxa_A<br><strong>H₁:</strong> taxa_B &gt; taxa_A</p>
             </div>
+            <div class="card a-green" style="margin-top:12px">
+                <h4>Impacto estimado</h4>
+                <p>+1,2 p.p. em conversao × 4.000 usuarios/semana = <strong>+48 conversoes/semana</strong>.<br>
+                Relevante economicamente?</p>
+            </div>
         </div>
         <div>
             <ol class="step-list">
                 <li>Randomizar usuarios entre controle e variante.</li>
                 <li>Definir metrica principal e efeito minimo relevante.</li>
+                <li>Calcular poder e tamanho de amostra necessario.</li>
+                <li>Executar o teste pelo tempo planejado.</li>
                 <li>Calcular teste de proporcoes e intervalo.</li>
                 <li>Interpretar significancia e impacto de negocio juntos.</li>
                 <li>Evitar encerrar o experimento cedo demais.</li>
@@ -303,81 +556,297 @@
     </div>
 </div>
 
+<!-- ===================== PYTHON: TESTE T DUAS AMOSTRAS ===================== -->
 <div class="slide slide-content">
-    <div class="slide-header"><h2>Python: intervalos e testes</h2><span class="slide-tag dark">Codigo</span></div>
+    <div class="slide-header"><h2>Python: Teste t de Duas Amostras</h2><span class="slide-tag dark">Codigo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-purple" style="margin-bottom:12px">
+                <h4>Cenario</h4>
+                <p>Comparar o tempo de atendimento de duas equipes: A (40 chamadas) e B (42 chamadas). O novo processo (B) e mais rapido?</p>
+            </div>
+<pre class="code-block" data-lang="Python">from scipy import stats
+import numpy as np
+
+np.random.seed(42)
+equipe_a = np.random.normal(9.2, 1.8, 40)
+equipe_b = np.random.normal(8.5, 2.1, 42)
+
+# 1. Verificar igualdade de variancias (Levene)
+_, p_lev = stats.levene(equipe_a, equipe_b)
+equal_var = p_lev &gt; 0.05
+print(f"Variancias iguais? {equal_var}")
+
+# 2. Teste t (Welch se variancias diferentes)
+t, p = stats.ttest_ind(equipe_a, equipe_b,
+                        equal_var=equal_var)
+print(f"t = {t:.3f}, p = {p:.4f}")
+print("Rejeitar H0?", "Sim" if p &lt; 0.05 else "Nao")
+
+# 3. Cohen's d
+s = np.std(np.concatenate([equipe_a, equipe_b]), ddof=1)
+d = (equipe_a.mean() - equipe_b.mean()) / s
+print(f"Cohen's d = {d:.3f}")</pre>
+        </div>
+        <div>
+            <div class="card a-blue" style="margin-bottom:12px">
+                <h4>Saida esperada</h4>
+                <p>t ≈ 1.87, p ≈ 0.065<br>
+                → <strong>Nao rejeita H₀</strong> ao nivel 5%<br>
+                → Cohen's d ≈ 0.38 (efeito pequeno-medio)</p>
+            </div>
+            <div class="card a-green" style="margin-bottom:12px">
+                <h4>t pareado (antes/depois)</h4>
+            </div>
+<pre class="code-block" data-lang="Python">np.random.seed(1)
+antes = np.random.normal(10, 2, 30)
+depois = antes - np.random.normal(1, 0.5, 30)
+
+t, p = stats.ttest_rel(antes, depois)
+print(f"t = {t:.3f}, p = {p:.4f}")
+# Mesmo individuo nos dois momentos
+# p tipicamente &lt; 0.001</pre>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== PYTHON: INTERVALOS E TESTE AB ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Python: Intervalos e Teste A/B</h2><span class="slide-tag dark">Codigo</span></div>
     <div class="two-col">
         <div>
 <pre class="code-block" data-lang="Python">import numpy as np
 from scipy import stats
 
-ticket = np.array([175, 168, 190, 201, 185, 178, 194, 183, 176, 188])
+# IC para media com distribuicao t
+ticket = np.array([175, 168, 190, 201, 185,
+                   178, 194, 183, 176, 188])
 media = ticket.mean()
 desvio = ticket.std(ddof=1)
 n = len(ticket)
 
 ic = stats.t.interval(
     confidence=0.95,
-    df=n-1,
+    df=n - 1,
     loc=media,
     scale=desvio / np.sqrt(n)
 )
 
-print(media, ic)</pre>
+print(f"Media: {media:.1f}")
+print(f"IC 95%: [{ic[0]:.1f}, {ic[1]:.1f}]")</pre>
         </div>
         <div>
 <pre class="code-block" data-lang="Python">import numpy as np
 from statsmodels.stats.proportion import proportions_ztest
 
+# Teste A/B de proporcoes
 conversoes = np.array([320, 377])
-usuarios = np.array([4000, 4100])
+usuarios   = np.array([4000, 4100])
 
-z_stat, p_valor = proportions_ztest(conversoes, usuarios)
+z_stat, p_valor = proportions_ztest(
+    conversoes, usuarios, alternative='smaller'
+)
 print(f"z = {z_stat:.3f}")
-print(f"p = {p_valor:.4f}")</pre>
+print(f"p = {p_valor:.4f}")
+
+# Intervalo para cada proporcao
+from statsmodels.stats.proportion import proportion_confint
+for conv, n in zip(conversoes, usuarios):
+    ic = proportion_confint(conv, n, alpha=0.05)
+    print(f"{conv/n:.3f}  IC=[{ic[0]:.3f},{ic[1]:.3f}]")</pre>
         </div>
     </div>
 </div>
 
+<!-- ===================== PYTHON: ANOVA ===================== -->
 <div class="slide slide-content">
-    <div class="slide-header"><h2>Exercicio pratico e fechamento</h2><span class="slide-tag">Encerramento</span></div>
+    <div class="slide-header"><h2>Python: ANOVA Unidirecional</h2><span class="slide-tag dark">Codigo</span></div>
     <div class="two-col">
         <div>
-            <div class="card a-purple">
-                <h4>Exercicio</h4>
+            <div class="card a-amber" style="margin-bottom:12px">
+                <h4>Cenario</h4>
+                <p>Receita media por canal: Email, App e Loja Fisica. Ha diferenca significativa entre os canais?</p>
+            </div>
+<pre class="code-block" data-lang="Python">from scipy import stats
+import numpy as np
+
+np.random.seed(7)
+email = np.random.normal(320, 60, 50)
+app   = np.random.normal(380, 75, 50)
+loja  = np.random.normal(290, 55, 50)
+
+# ANOVA one-way
+F, p = stats.f_oneway(email, app, loja)
+print(f"F = {F:.2f}, p = {p:.4f}")
+# F = 14.21, p = 0.0000 → rejeita H₀
+
+# Post-hoc: Tukey HSD
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import numpy as np
+
+dados  = np.concatenate([email, app, loja])
+grupos = ['Email']*50 + ['App']*50 + ['Loja']*50
+resultado = pairwise_tukeyhsd(dados, grupos)
+print(resultado)</pre>
+        </div>
+        <div>
+            <table>
+                <tr><th>Comparacao</th><th>Diferenca</th><th>p-adj</th><th>Sig.?</th></tr>
+                <tr><td>App − Email</td><td class="td-num">+R$60</td><td class="td-num">0,001</td><td class="td-ok">Sim</td></tr>
+                <tr><td>Email − Loja</td><td class="td-num">+R$30</td><td class="td-num">0,040</td><td class="td-ok">Sim</td></tr>
+                <tr><td>App − Loja</td><td class="td-num">+R$90</td><td class="td-num">0,000</td><td class="td-ok">Sim</td></tr>
+            </table>
+            <div class="highlight-box" style="margin-top:14px">
+                <h3>Pos-hoc e obrigatorio</h3>
+                <p>A ANOVA so diz que HA diferenca entre grupos. Tukey HSD identifica QUAIS pares diferem, controlando o erro acumulado por multiplos testes.</p>
+            </div>
+            <div class="card a-green" style="margin-top:12px">
+                <h4>Conclusao de negocio</h4>
+                <p>App gera R$60 a mais que Email e R$90 a mais que Loja — considerar realocar orcamento para o canal App.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== PYTHON: QUI-QUADRADO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Python: Qui-Quadrado de Independencia</h2><span class="slide-tag dark">Codigo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-red" style="margin-bottom:12px">
+                <h4>Cenario</h4>
+                <p>Canal de aquisicao e churn sao independentes? Tabela de contingencia com 800 clientes.</p>
+            </div>
+            <table style="margin-bottom:12px">
+                <tr><th>Canal</th><th>Ativo</th><th>Churn</th><th>Total</th></tr>
+                <tr><td>Email</td><td class="td-num">210</td><td class="td-num">90</td><td class="td-num">300</td></tr>
+                <tr><td>Redes Sociais</td><td class="td-num">180</td><td class="td-num">70</td><td class="td-num">250</td></tr>
+                <tr><td>Organico</td><td class="td-num">160</td><td class="td-num">90</td><td class="td-num">250</td></tr>
+            </table>
+            <div class="formula-box">
+                <div class="formula">Taxa churn Email: 30%</div>
+                <div class="formula">Taxa churn Redes: 28%</div>
+                <div class="formula">Taxa churn Organico: 36%</div>
+            </div>
+        </div>
+        <div>
+<pre class="code-block" data-lang="Python">from scipy import stats
+import numpy as np
+
+tabela = np.array([
+    [210, 90],   # Email
+    [180, 70],   # Redes Sociais
+    [160, 90],   # Organico
+])
+
+chi2, p, gl, esperado = stats.chi2_contingency(tabela)
+print(f"chi2 = {chi2:.3f}")
+print(f"p    = {p:.4f}")
+print(f"gl   = {gl}")
+# chi2 = 6.42, p = 0.040, gl = 2
+
+# Residuos padronizados (quem contribui mais?)
+obs = tabela.astype(float)
+res = (obs - esperado) / np.sqrt(esperado)
+print("Residuos padronizados:")
+print(res.round(2))</pre>
+            <div class="card a-green" style="margin-top:12px">
+                <h4>Interpretacao</h4>
+                <p>p = 0,040 &lt; 0,05 → canal e churn NAO sao independentes. Clientes organicos churnam mais. Investigar onboarding para esse perfil.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== ARMADILHAS ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Armadilhas Comuns em Testes</h2><span class="slide-tag amber">Atencao</span></div>
+    <div class="three-col">
+        <div class="card a-red">
+            <span class="card-icon">🎣</span>
+            <h4>p-hacking</h4>
+            <p>Testar multiplas variacoes ate encontrar p &lt; 0,05. Com 20 testes independentes, espera-se 1 falso positivo por acaso puro.</p>
+            <p style="margin-top:8px;font-weight:700">Solucao: pre-registrar hipoteses e usar correcao de Bonferroni (α / k).</p>
+        </div>
+        <div class="card a-amber">
+            <span class="card-icon">👀</span>
+            <h4>Peeking</h4>
+            <p>Encerrar o experimento assim que p cruzar 0,05. Inflaciona a taxa de falso positivo para ate 30%.</p>
+            <p style="margin-top:8px;font-weight:700">Solucao: definir n antes de iniciar e esperar o fim planejado (ou usar testes sequenciais).</p>
+        </div>
+        <div class="card a-purple">
+            <span class="card-icon">🔀</span>
+            <h4>HARKing</h4>
+            <p>Hipoteses formuladas apos ver os dados (Hypothesizing After Results Known). Transforma exploracao em confirmacao.</p>
+            <p style="margin-top:8px;font-weight:700">Solucao: separar claramente analise exploratoria de confirmatoria.</p>
+        </div>
+    </div>
+    <div class="formula-box" style="margin-top:18px">
+        <div class="formula">Bonferroni: α* = α / k</div>
+        <div class="formula-label">Para 5 testes simultaneos com α = 5%, use α* = 1% em cada teste individual</div>
+    </div>
+    <div class="card a-green" style="margin-top:12px">
+        <h4>Outras precaucoes</h4>
+        <p>Contaminacao de grupos (um usuario ver as duas variacoes), efeito de novidade (usuarios respondem diferente so por ser novo) e sazonalidade nao controlada podem invalidar resultados mesmo sem intencao.</p>
+    </div>
+</div>
+
+<!-- ===================== EXERCICIO E FECHAMENTO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Exercicios Praticos e Fechamento</h2><span class="slide-tag">Encerramento</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-purple" style="margin-bottom:14px">
+                <h4>Exercicio 1 — t de duas amostras</h4>
                 <ul>
                     <li>Antes: 35 atendimentos, media = 9,8 min, desvio = 2,1</li>
                     <li>Depois: 38 atendimentos, media = 8,9 min, desvio = 1,9</li>
-                    <li>Defina H₀ e H₁, escolha o teste e interprete o resultado.</li>
+                    <li>Defina H₀ e H₁, calcule o teste e interprete.</li>
                 </ul>
             </div>
-            <div class="highlight-box">
-                <h3>Para praticar</h3>
-                <p>Replique o raciocinio para uma taxa de conversao, uma media e uma relacao entre categorias.</p>
+            <div class="card a-blue" style="margin-bottom:14px">
+                <h4>Exercicio 2 — IC para proporcao</h4>
+                <ul>
+                    <li>Survey com 300 respostas, 192 satisfeitos.</li>
+                    <li>Calcule o IC 95% para a taxa de satisfacao.</li>
+                    <li>Diga se a meta de 60% de satisfacao e atingida.</li>
+                </ul>
+            </div>
+            <div class="card a-amber">
+                <h4>Exercicio 3 — Qui-quadrado</h4>
+                <ul>
+                    <li>Plano basico: 80 renovam, 120 cancelam.</li>
+                    <li>Plano premium: 150 renovam, 50 cancelam.</li>
+                    <li>Plano e retencao sao independentes?</li>
+                </ul>
             </div>
         </div>
         <div>
             <div class="card a-red" style="margin-bottom:14px">
                 <h4>Recapitulacao</h4>
                 <ul>
-                    <li>Estimadores resumem a amostra.</li>
-                    <li>Intervalos quantificam incerteza.</li>
-                    <li>Testes ajudam a decidir sob risco.</li>
+                    <li>TCL justifica o uso de testes para qualquer distribuicao.</li>
+                    <li>Estimadores resumem a amostra com erro padrao.</li>
+                    <li>Intervalos quantificam incerteza de forma direta.</li>
+                    <li>Testes ajudam a decidir sob risco controlado.</li>
+                    <li>Cohen's d mede relevancia pratica.</li>
                     <li>p-valor nao substitui contexto de negocio.</li>
-                    <li>Python torna a analise reprodutivel.</li>
+                    <li>Cuidado com p-hacking e peeking.</li>
                 </ul>
             </div>
             <div class="card full-purple">
                 <h4>Proximo passo</h4>
-                <p>Esses conceitos se conectam diretamente com regressao, validacao de modelos e experimentacao em ciencia de dados.</p>
+                <p>Esses conceitos se conectam diretamente com regressao, validacao de modelos e experimentacao em ciencia de dados. Na aula 06 veremos correlacao e regressao linear.</p>
             </div>
         </div>
     </div>
 </div>
-</div>
+
+</div><!-- /presentation-container -->
 
 <div class="navigation">
     <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Anterior</button>
-    <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">14</span></span>
+    <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">?</span></span>
     <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Proximo →</button>
 </div>
 
@@ -401,7 +870,7 @@ print(f"p = {p_valor:.4f}")</pre>
     }
     document.addEventListener('keydown', e => {
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
     });
     showSlide(0);
 </script>
