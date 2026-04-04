@@ -42,9 +42,9 @@
         .slide-tag.dark { background:var(--ink); }
         p, li { font-size:1.05rem; line-height:1.65; color:var(--ink); }
         ul { margin-left:22px; } li { margin-bottom:9px; } h3 { font-size:1.2rem; font-weight:700; margin-bottom:12px; color:var(--ink); }
-        .two-col { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
-        .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; }
-        .four-col { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+        .two-col { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:32px; }
+        .three-col { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+        .four-col { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
         .card { background:white; border-radius:12px; padding:22px; border:1.5px solid rgba(11,16,32,.08); overflow:hidden; }
         .card h4 { font-size:1rem; font-weight:700; margin-bottom:8px; }
         .card p, .card li { font-size:.9rem; color:#444; }
@@ -59,7 +59,7 @@
         .formula-label { font-size:.82rem; color:var(--muted); margin-top:6px; }
         pre.code-block { background:#1e1e2e; border-radius:10px; padding:18px 20px; font-family:'Space Mono',monospace; font-size:.8rem; line-height:1.65; color:#cdd6f4; overflow-x:auto; margin:12px 0; position:relative; white-space:pre; }
         pre.code-block::before { content:attr(data-lang); position:absolute; top:8px; right:12px; font-size:.62rem; color:rgba(255,255,255,.2); letter-spacing:.1em; text-transform:uppercase; }
-        .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:18px 0; }
+        .stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:18px 0; }
         .stat { text-align:center; padding:22px 14px; background:white; border-radius:12px; border:1.5px solid rgba(11,16,32,.08); }
         .stat-number { font-family:'Space Mono',monospace; font-size:2.6rem; font-weight:700; color:var(--infer); display:block; line-height:1; margin-bottom:7px; }
         .stat-label { font-size:.82rem; color:var(--muted); line-height:1.4; }
@@ -77,6 +77,18 @@
         .navigation { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:12px; z-index:1000; background:rgba(11,16,32,.92); padding:12px 20px; backdrop-filter:blur(12px); }
         .nav-btn { background:transparent; color:var(--paper); border:1.5px solid rgba(246,242,235,.25); padding:8px 20px; border-radius:20px; cursor:pointer; font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; }
         .nav-btn:hover:not(:disabled) { background:#d8b4fe; color:var(--ink); border-color:#d8b4fe; } .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
+        .pdf-btn { background:#1a6ef5; color:#fff; border:1.5px solid #1a6ef5; padding:8px 18px; border-radius:20px; cursor:pointer; font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; transition:all 0.2s ease; display:none; }
+        .pdf-btn:hover { filter:brightness(1.15); }
+        .pdf-btn.visible { display:inline-block; }
+        @media print {
+            @page { size: A4 landscape; margin: 0; }
+            body { overflow:visible !important; background:#fff !important; }
+            .presentation-container { display:block !important; width:297mm !important; height:auto !important; position:static !important; }
+            .slide { display:flex !important; flex-direction:column !important; position:relative !important; width:297mm !important; height:210mm !important; overflow:hidden !important; page-break-after:always; break-after:page; box-sizing:border-box !important; }
+            .slide-content { padding:20px 48px 20px !important; }
+            .stat-number { font-size:1.8rem !important; }
+            .navigation { display:none !important; }
+        }
         .slide-counter { font-family:'Space Mono',monospace; font-size:.78rem; color:rgba(246,242,235,.45); min-width:64px; text-align:center; }
         @media (max-width:900px) {
             .slide-content, .slide-cover { padding:40px 24px 96px; }
@@ -897,6 +909,7 @@ print(res.round(2))</pre>
     <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Anterior</button>
     <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">?</span></span>
     <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Proximo →</button>
+    <button class="pdf-btn" id="pdfBtn" onclick="window.print()">⬇ Baixar PDF</button>
 </div>
 
 <script>
@@ -912,6 +925,7 @@ print(res.round(2))</pre>
         document.getElementById('currentSlide').textContent = i + 1;
         document.getElementById('prevBtn').disabled = (i === 0);
         document.getElementById('nextBtn').disabled = (i === total - 1);
+        document.getElementById('pdfBtn').classList.toggle('visible', i === total - 1);
     }
     function changeSlide(delta) {
         const next = cur + delta;
