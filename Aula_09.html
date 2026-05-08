@@ -931,7 +931,7 @@ print(f"  dos dados de treino: "
         </div>
     </div>
     <div style="text-align:center; margin-top:28px;">
-        <a id="notebookDownload" href="./Aula_09_Predicao.ipynb" download="Aula_09_Predicao.ipynb" type="application/x-ipynb+json"
+        <a id="notebookDownload" href="./Aula_09_Predicao.ipynb" data-raw-url="https://raw.githubusercontent.com/DiegoRInacio/aulas_ds/main/Aula_09_Predicao.ipynb" download="Aula_09_Predicao.ipynb" type="application/x-ipynb+json"
            style="display:inline-block; background:#15803d; color:#fff; font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; padding:12px 28px; border-radius:24px; text-decoration:none; border:2px solid #15803d; transition:all .2s"
            onmouseover="this.style.background='#166534'" onmouseout="this.style.background='#15803d'">
             ⬇ Baixar Notebook de Exercícios (.ipynb)
@@ -979,7 +979,10 @@ print(f"  dos dados de treino: "
 
         e.preventDefault();
         try {
-            const response = await fetch(notebookDownload.href, { cache: 'no-store' });
+            let response = await fetch(notebookDownload.href, { cache: 'no-store' });
+            if (!response.ok && notebookDownload.dataset.rawUrl) {
+                response = await fetch(notebookDownload.dataset.rawUrl, { cache: 'no-store' });
+            }
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const blob = await response.blob();
@@ -992,7 +995,7 @@ print(f"  dos dados de treino: "
             link.remove();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         } catch (error) {
-            window.location.href = notebookDownload.href;
+            window.location.href = notebookDownload.dataset.rawUrl || notebookDownload.href;
         }
     });
     document.addEventListener('keydown', e => {
