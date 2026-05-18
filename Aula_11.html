@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 11 - Classificação, Clusterização e Introdução a Machine Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --ink:#0b1020; --paper:#f6f2eb; --accent:#e05c2a; --accent2:#2563eb;
+            --green:#15803d; --muted:#7d8496; --teal:#0d9488; --teal-light:#f0fdfa;
+            --amber:#d97706; --rose:#e11d48; --purple:#7c3aed;
+        }
+        body { font-family:'Syne',sans-serif; background:var(--ink); color:var(--ink); overflow:hidden; }
+        .presentation-container { width:100vw; height:100vh; position:relative; }
+        .slide { width:100%; height:100%; display:none; position:absolute; top:0; left:0; background:var(--paper); overflow-y:auto; overflow-x:hidden; }
+        .slide.active { display:flex; flex-direction:column; animation:rev .45s cubic-bezier(.22,1,.36,1); }
+        @keyframes rev { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        .slide-cover { background:var(--ink); color:var(--paper); justify-content:center; align-items:flex-start; padding:80px 80px 100px; position:relative; overflow:hidden; min-height:100%; }
+        .slide-cover::before { content:''; position:absolute; top:-80px; right:-80px; width:520px; height:520px; border-radius:50%; border:80px solid var(--teal); opacity:.13; }
+        .slide-cover::after { content:''; position:absolute; bottom:-60px; left:180px; width:260px; height:260px; border-radius:50%; background:var(--purple); opacity:.08; }
+        .cover-tag { font-family:'Space Mono',monospace; font-size:.75rem; color:#5eead4; letter-spacing:.18em; text-transform:uppercase; margin-bottom:28px; }
+        .cover-title { font-size:clamp(2.8rem,5vw,4.2rem); font-weight:800; line-height:1.05; max-width:820px; }
+        .cover-title em { font-style:normal; color:#5eead4; }
+        .cover-subtitle { margin-top:32px; font-size:1.15rem; color:rgba(246,242,235,.65); max-width:560px; line-height:1.6; }
+        .cover-meta { position:absolute; bottom:100px; right:80px; font-family:'Space Mono',monospace; font-size:.8rem; color:rgba(246,242,235,.3); text-align:right; line-height:1.9; }
+
+        .slide-section { justify-content:center; align-items:center; text-align:center; padding:60px 60px 100px; min-height:100%; position:relative; }
+        .sec-teal   { background:var(--teal);    color:var(--paper); }
+        .sec-blue   { background:var(--accent2); color:var(--paper); }
+        .sec-dark   { background:#111827;         color:var(--paper); }
+        .sec-green  { background:var(--green);    color:var(--paper); }
+        .sec-purple { background:var(--purple);   color:var(--paper); }
+        .sec-amber  { background:var(--amber);    color:var(--paper); }
+        .section-number { font-family:'Space Mono',monospace; font-size:8rem; font-weight:700; opacity:.08; position:absolute; top:30px; left:50%; transform:translateX(-50%); }
+        .section-label  { font-family:'Space Mono',monospace; font-size:.75rem; letter-spacing:.2em; text-transform:uppercase; opacity:.65; margin-bottom:20px; }
+        .section-title  { font-size:3rem; font-weight:800; line-height:1.1; max-width:760px; }
+
+        .slide-content { padding:52px 72px 100px; min-height:100%; }
+        .slide-header { display:flex; align-items:baseline; gap:20px; margin-bottom:36px; border-bottom:2px solid var(--ink); padding-bottom:16px; }
+        .slide-header h2 { font-size:2rem; font-weight:800; color:var(--ink); }
+        .slide-tag { font-family:'Space Mono',monospace; font-size:.72rem; background:var(--accent); color:white; padding:3px 10px; border-radius:2px; text-transform:uppercase; letter-spacing:.1em; white-space:nowrap; }
+        .slide-tag.teal   { background:var(--teal); }
+        .slide-tag.amber  { background:var(--amber); }
+        .slide-tag.green  { background:var(--green); }
+        .slide-tag.blue   { background:var(--accent2); }
+        .slide-tag.dark   { background:var(--ink); }
+        .slide-tag.rose   { background:var(--rose); }
+        .slide-tag.purple { background:var(--purple); }
+
+        p, li { font-size:1.05rem; line-height:1.65; color:var(--ink); }
+        ul { margin-left:22px; } li { margin-bottom:9px; } h3 { font-size:1.2rem; font-weight:700; margin-bottom:12px; color:var(--ink); }
+        .two-col   { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:32px; }
+        .three-col { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+        .four-col  { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+        .card { background:white; border-radius:12px; padding:22px; border:1.5px solid rgba(11,16,32,.08); overflow:hidden; }
+        .card h4 { font-size:1rem; font-weight:700; margin-bottom:8px; }
+        .card p, .card li { font-size:.9rem; color:#444; }
+        .card-icon { font-size:2rem; margin-bottom:10px; display:block; }
+        .a-teal   { border-top:4px solid var(--teal); }
+        .a-orange { border-top:4px solid var(--accent); }
+        .a-green  { border-top:4px solid var(--green); }
+        .a-blue   { border-top:4px solid var(--accent2); }
+        .a-amber  { border-top:4px solid var(--amber); }
+        .a-rose   { border-top:4px solid var(--rose); }
+        .a-purple { border-top:4px solid var(--purple); }
+
+        .highlight-box { background:var(--ink); color:var(--paper); border-radius:12px; padding:24px 32px; margin:20px 0; }
+        .highlight-box h3 { font-size:1.15rem; font-weight:700; margin-bottom:10px; color:#5eead4; }
+        .highlight-box p, .highlight-box li { color:rgba(246,242,235,.85); font-size:.97rem; }
+        .highlight-box td { color:var(--ink); }
+        .highlight-box td code { color:var(--accent2); }
+
+        .formula-box { background:#eff6ff; border:2px solid #bfdbfe; border-radius:12px; padding:18px 24px; margin:12px 0; text-align:center; }
+        .formula { font-family:'Space Mono',monospace; font-size:1.05rem; color:var(--accent2); font-weight:700; line-height:1.9; }
+        .formula-label { font-size:.82rem; color:var(--muted); margin-top:6px; }
+        .formula-box.teal { background:#f0fdfa; border-color:#99f6e4; }
+        .formula-box.teal .formula { color:var(--teal); }
+        .formula-box.purple { background:#faf5ff; border-color:#d8b4fe; }
+        .formula-box.purple .formula { color:var(--purple); }
+        .formula-box.amber { background:#fffbeb; border-color:#fde68a; }
+        .formula-box.amber .formula { color:var(--amber); }
+
+        pre.code-block { background:#1e1e2e; border-radius:10px; padding:18px 20px; font-family:'Space Mono',monospace; font-size:.78rem; line-height:1.65; color:#cdd6f4; overflow-x:auto; margin:12px 0; position:relative; white-space:pre; }
+        pre.code-block::before { content:attr(data-lang); position:absolute; top:8px; right:12px; font-size:.62rem; color:rgba(255,255,255,.2); letter-spacing:.1em; text-transform:uppercase; }
+
+        .stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:18px 0; }
+        .stat { text-align:center; padding:22px 14px; background:white; border-radius:12px; border:1.5px solid rgba(11,16,32,.08); }
+        .stat-number { font-family:'Space Mono',monospace; font-size:2.6rem; font-weight:700; color:var(--teal); display:block; line-height:1; margin-bottom:7px; }
+        .stat-label  { font-size:.82rem; color:var(--muted); line-height:1.4; }
+
+        .quote-block { border-left:5px solid var(--teal); padding:14px 22px; margin:18px 0; background:white; border-radius:0 10px 10px 0; }
+        .quote-block p { font-size:1.15rem; font-style:italic; }
+        .quote-block cite { display:block; margin-top:8px; font-size:.82rem; color:var(--muted); font-style:normal; font-family:'Space Mono',monospace; }
+
+        .step-list { counter-reset:step; list-style:none; margin-left:0; }
+        .step-list li { counter-increment:step; padding:10px 0 10px 44px; position:relative; border-bottom:1px solid rgba(11,16,32,.06); font-size:.95rem; }
+        .step-list li::before { content:counter(step); position:absolute; left:0; top:10px; width:28px; height:28px; background:var(--teal); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:.72rem; font-weight:700; }
+
+        table { width:100%; border-collapse:collapse; font-size:.88rem; background:white; border-radius:10px; overflow:hidden; }
+        th { background:var(--ink); color:var(--paper); padding:10px 14px; text-align:left; font-family:'Space Mono',monospace; font-size:.78rem; font-weight:700; }
+        td { padding:9px 14px; border-bottom:1px solid rgba(11,16,32,.06); }
+        tr:hover td { background:#f0fdfa; }
+        .td-teal  { font-family:'Space Mono',monospace; color:var(--teal); font-weight:700; }
+        .td-blue  { font-family:'Space Mono',monospace; color:var(--accent2); font-weight:700; }
+        .td-ok    { color:var(--green); font-weight:700; }
+        .td-bad   { color:var(--accent); font-weight:700; }
+        .td-warn  { color:var(--amber); font-weight:700; }
+        .td-mid   { color:var(--teal); font-weight:700; }
+        .td-purple { color:var(--purple); font-weight:700; }
+
+        .pipeline { display:flex; align-items:center; gap:0; margin:16px 0; flex-wrap:nowrap; }
+        .pipe-step { background:white; border:1.5px solid rgba(11,16,32,.08); border-radius:8px; padding:10px 14px; font-size:.82rem; font-weight:700; text-align:center; flex:1; position:relative; }
+        .pipe-step::after { content:'→'; position:absolute; right:-18px; top:50%; transform:translateY(-50%); font-size:1.2rem; color:var(--teal); z-index:1; }
+        .pipe-step:last-child::after { display:none; }
+        .pipe-step small { display:block; font-weight:400; font-size:.72rem; color:var(--muted); margin-top:3px; }
+
+        .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-family:'Space Mono',monospace; font-weight:700; }
+        .badge-teal   { background:#f0fdfa; color:var(--teal);    border:1px solid #99f6e4; }
+        .badge-blue   { background:#eff6ff; color:var(--accent2); border:1px solid #bfdbfe; }
+        .badge-green  { background:#f0fdf4; color:var(--green);   border:1px solid #86efac; }
+        .badge-amber  { background:#fffbeb; color:var(--amber);   border:1px solid #fde68a; }
+        .badge-rose   { background:#fff1f2; color:var(--rose);    border:1px solid #fecdd3; }
+        .badge-purple { background:#faf5ff; color:var(--purple);  border:1px solid #d8b4fe; }
+
+        /* Tree diagram */
+        .tree-node { background:white; border:2px solid var(--ink); border-radius:8px; padding:8px 14px; font-family:'Space Mono',monospace; font-size:.8rem; font-weight:700; text-align:center; display:inline-block; }
+        .tree-node.leaf-ok  { background:#f0fdf4; border-color:var(--green); color:var(--green); }
+        .tree-node.leaf-bad { background:#fff1f2; border-color:var(--rose);  color:var(--rose); }
+        .tree-row { display:flex; justify-content:center; gap:18px; margin:8px 0; }
+        .tree-connector { width:2px; background:var(--muted); height:20px; margin:0 auto; }
+
+        /* Cluster visual */
+        .cluster-demo { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:12px 0; }
+        .cluster-dot { width:14px; height:14px; border-radius:50%; display:inline-block; }
+
+        .navigation { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:12px; z-index:1000; background:rgba(11,16,32,.92); padding:12px 20px; backdrop-filter:blur(12px); }
+        .nav-btn { background:transparent; color:var(--paper); border:1.5px solid rgba(246,242,235,.25); padding:8px 20px; border-radius:20px; cursor:pointer; font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; }
+        .nav-btn:hover:not(:disabled) { background:#5eead4; color:var(--ink); border-color:#5eead4; }
+        .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
+        .pdf-btn { background:#1a6ef5; color:#fff; border:1.5px solid #1a6ef5; padding:8px 18px; border-radius:20px; cursor:pointer; font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; transition:all 0.2s ease; display:none; }
+        .pdf-btn:hover { filter:brightness(1.15); }
+        .pdf-btn.visible { display:inline-block; }
+        .slide-counter { font-family:'Space Mono',monospace; font-size:.78rem; color:rgba(246,242,235,.45); min-width:64px; text-align:center; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 0; }
+            body { overflow:visible !important; background:#fff !important; }
+            .presentation-container { display:block !important; width:297mm !important; height:auto !important; position:static !important; }
+            .slide { display:flex !important; flex-direction:column !important; position:relative !important; width:297mm !important; height:210mm !important; overflow:hidden !important; page-break-after:always; break-after:page; box-sizing:border-box !important; }
+            .slide-content { padding:20px 48px 20px !important; }
+            .stat-number { font-size:1.8rem !important; }
+            .navigation { display:none !important; }
+        }
+
+        @media (max-width:900px) {
+            .slide-content, .slide-cover { padding:40px 24px 96px; }
+            .two-col, .three-col, .four-col, .stat-grid { grid-template-columns:1fr; }
+            .slide-header { flex-direction:column; align-items:flex-start; gap:12px; }
+            .cover-meta { position:static; margin-top:32px; text-align:left; }
+            .section-number { font-size:5rem; } .section-title { font-size:2.2rem; }
+            .pipeline { flex-direction:column; }
+            .pipe-step::after { content:'↓'; right:50%; top:auto; bottom:-18px; transform:translateX(50%); }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+<!-- ===================== CAPA ===================== -->
+<div class="slide slide-cover active">
+    <div class="cover-tag">Ciência de Dados · Aula 11</div>
+    <h1 class="cover-title">Classificação, Clusterização e<br><em>Introdução a Machine Learning</em></h1>
+    <p class="cover-subtitle">Das métricas ao modelo: conheça os principais algoritmos de classificação supervisionada, aprenda a agrupar dados sem rótulos com clusterização, e monte seu primeiro pipeline de ML completo do zero.</p>
+    <div class="cover-meta">
+        KNN, Árvore de Decisão e Random Forest<br>
+        SVM — Máquina de Vetor de Suporte<br>
+        Comparativo de algoritmos de classificação<br>
+        K-Means e clusterização não supervisionada<br>
+        DBSCAN — clusters de formato livre<br>
+        Pipeline ML: pré-processo → treino → avaliação
+    </div>
+</div>
+
+<!-- ===================== AGENDA ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>O que veremos hoje</h2><span class="slide-tag teal">Agenda</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <span class="card-icon">🎯</span>
+                <h4>Parte 1 — Algoritmos de Classificação</h4>
+                <ul>
+                    <li>KNN — K-Nearest Neighbors (vizinhos mais próximos)</li>
+                    <li>Árvore de Decisão (Decision Tree)</li>
+                    <li>Random Forest — ensemble de árvores</li>
+                    <li>SVM — Máquina de Vetor de Suporte</li>
+                    <li>Comparativo: qual algoritmo para qual problema?</li>
+                </ul>
+            </div>
+            <div class="card a-purple">
+                <span class="card-icon">🔵</span>
+                <h4>Parte 2 — Clusterização (Não Supervisionada)</h4>
+                <ul>
+                    <li>O que é aprendizado não supervisionado</li>
+                    <li>K-Means — como funciona o algoritmo</li>
+                    <li>Escolha do K: método do cotovelo e silhouette</li>
+                    <li>DBSCAN — clusters de formato livre e ruído</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="card a-blue" style="margin-bottom:14px">
+                <span class="card-icon">⚙️</span>
+                <h4>Parte 3 — Pipeline de Machine Learning</h4>
+                <ul>
+                    <li>Etapas completas de um projeto de ML</li>
+                    <li>GridSearchCV — busca dos melhores hiperparâmetros</li>
+                    <li>Data leakage e como evitar com Pipeline</li>
+                    <li>Comparativo final de modelos</li>
+                </ul>
+            </div>
+            <div class="highlight-box" style="margin-top:0">
+                <h3>Conexão com a Aula 10</h3>
+                <p>Nas aulas 09 e 10 você aprendeu a <strong>treinar</strong> e <strong>avaliar</strong> modelos de regressão. Agora expandimos para um leque maior de algoritmos — supervisionados e não supervisionados — e aprendemos a escolher e otimizar o modelo certo para cada problema.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== ML MAP ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Mapa de Machine Learning — Onde Estamos</h2><span class="slide-tag teal">Contexto</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <h4>Aprendizado Supervisionado</h4>
+                <p>O modelo aprende a partir de dados <strong>com rótulos</strong> (respostas conhecidas). Objetivo: generalizar para dados novos.</p>
+                <br>
+                <table style="margin-top:8px; font-size:.82rem">
+                    <tr><th>Tipo</th><th>Saída</th><th>Exemplos</th></tr>
+                    <tr><td><strong>Regressão</strong></td><td>Número contínuo</td><td>Preço, temperatura</td></tr>
+                    <tr><td><strong>Classificação</strong></td><td>Categoria/classe</td><td>Spam, diagnóstico</td></tr>
+                </table>
+                <br>
+                <p style="font-size:.85rem; color:#555">Algoritmos desta aula: <strong>KNN, Árvore, Random Forest, SVM</strong></p>
+            </div>
+            <div class="card a-purple">
+                <h4>Aprendizado Não Supervisionado</h4>
+                <p>Dados <strong>sem rótulos</strong>. O modelo descobre estruturas, padrões e grupos por conta própria.</p>
+                <br>
+                <table style="margin-top:8px; font-size:.82rem">
+                    <tr><th>Tipo</th><th>Objetivo</th></tr>
+                    <tr><td><strong>Clusterização</strong></td><td>Agrupar dados similares</td></tr>
+                    <tr><td><strong>Redução de dim.</strong></td><td>Comprimir informação (PCA)</td></tr>
+                    <tr><td><strong>Detecção de anomalia</strong></td><td>Encontrar outliers</td></tr>
+                </table>
+                <br>
+                <p style="font-size:.85rem; color:#555">Algoritmos desta aula: <strong>K-Means, DBSCAN</strong></p>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box">
+                <h3>Como escolher o algoritmo certo?</h3>
+                <ul style="margin-top:8px">
+                    <li><strong>Tenho dados rotulados?</strong> → Supervisionado</li>
+                    <li><strong>A saída é numérica?</strong> → Regressão</li>
+                    <li><strong>A saída é uma categoria?</strong> → Classificação</li>
+                    <li><strong>Não tenho rótulos?</strong> → Não supervisionado</li>
+                    <li><strong>Quero agrupar?</strong> → Clusterização</li>
+                    <li><strong>Quero descobrir anomalias?</strong> → Isolation Forest, LOF</li>
+                </ul>
+            </div>
+            <div class="stat-grid" style="margin-top:14px">
+                <div class="stat"><span class="stat-number" style="color:var(--teal)">4</span><div class="stat-label">algoritmos de classificação</div></div>
+                <div class="stat"><span class="stat-number" style="color:var(--purple)">2</span><div class="stat-label">algoritmos de clusterização</div></div>
+                <div class="stat"><span class="stat-number" style="color:var(--accent2)">1</span><div class="stat-label">pipeline ML completo</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SECAO 1 ===================== -->
+<div class="slide slide-section sec-teal">
+    <span class="section-number">01</span>
+    <div class="section-label">Parte 1</div>
+    <h2 class="section-title">Algoritmos de Classificação Supervisionada</h2>
+</div>
+
+<!-- ===================== KNN ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>KNN — K-Nearest Neighbors</h2><span class="slide-tag teal">Algoritmo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <h4>Como funciona?</h4>
+                <p>Para classificar um ponto novo, o KNN:</p>
+                <ol class="step-list" style="margin-top:10px">
+                    <li>Calcula a distância desse ponto para <strong>todos</strong> os pontos de treino</li>
+                    <li>Seleciona os <strong>K vizinhos mais próximos</strong></li>
+                    <li>Atribui a classe mais frequente entre esses K vizinhos (votação majoritária)</li>
+                </ol>
+            </div>
+            <div class="formula-box teal">
+                <div class="formula">d(p, q) = √(Σᵢ (pᵢ − qᵢ)²)</div>
+                <div class="formula-label">Distância Euclidiana — a mais comum no KNN</div>
+            </div>
+            <div class="card a-amber" style="margin-top:14px">
+                <h4>Como escolher K?</h4>
+                <ul style="font-size:.88rem">
+                    <li><strong>K pequeno (1–3):</strong> fronteira irregular, overfitting</li>
+                    <li><strong>K grande:</strong> fronteira suave, underfitting</li>
+                    <li><strong>Prática:</strong> use CV para testar vários valores de K e escolher pelo F1 ou AUC</li>
+                    <li>Geralmente testa-se K = 3, 5, 7, 9, 11...</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box">
+                <h3>KNN é "preguiçoso" (lazy learner)</h3>
+                <p>O KNN não constrói um modelo explícito durante o treino — ele simplesmente <strong>memoriza todos os dados</strong>. A classificação acontece na predição, quando calcula distâncias.</p>
+                <br>
+                <p><strong>Vantagem:</strong> simples, sem hipóteses sobre a distribuição dos dados, atualiza automaticamente com novos dados.</p>
+                <br>
+                <p><strong>Desvantagem:</strong> lento para predição em bases grandes (calcula todas as distâncias), sensível à escala (sempre padronize!) e a ruído.</p>
+            </div>
+            <div class="card a-rose" style="margin-top:14px">
+                <h4>Cuidado: KNN exige padronização!</h4>
+                <p>Preditores em escalas diferentes distorcem as distâncias. Uma variável em km domina outra em graus. Use sempre <strong>StandardScaler</strong> antes do KNN.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== ARVORE ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Árvore de Decisão — Decision Tree</h2><span class="slide-tag teal">Algoritmo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <h4>Como funciona?</h4>
+                <p>A árvore divide os dados recursivamente com <strong>perguntas binárias</strong> ("Valor &gt; X?") até separar as classes. Cada divisão é escolhida para maximizar a <strong>pureza dos grupos</strong>.</p>
+                <br>
+                <p><strong>Critério de impureza:</strong></p>
+                <div class="formula-box teal" style="margin-top:8px; font-size:.9rem">
+                    <div class="formula" style="font-size:.88rem">Gini = 1 − Σ pᵢ²</div>
+                    <div class="formula-label">Gini = 0 → nó puro | Gini = 0,5 → nó totalmente misto</div>
+                </div>
+            </div>
+            <div style="text-align:center; margin:16px 0">
+                <div class="tree-node">Freq. ≥ 75%?</div>
+                <div class="tree-connector"></div>
+                <div class="tree-row">
+                    <div style="text-align:center">
+                        <div class="tree-node">Nota ≥ 6?</div>
+                        <div class="tree-connector"></div>
+                        <div class="tree-row">
+                            <div class="tree-node leaf-ok">Aprovado</div>
+                            <div class="tree-node leaf-bad">Reprovado</div>
+                        </div>
+                    </div>
+                    <div class="tree-node leaf-bad" style="margin-top:48px">Reprovado</div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box">
+                <h3>Vantagens e limitações</h3>
+                <ul style="margin-top:8px">
+                    <li><strong>Interpretável:</strong> as regras são visíveis e explicáveis</li>
+                    <li><strong>Não precisa de padronização</strong> (não usa distância)</li>
+                    <li><strong>Lida com variáveis mistas</strong> (numéricas e categóricas)</li>
+                    <li><strong>Tendência ao overfitting</strong> se não restrita (use <code>max_depth</code>, <code>min_samples_leaf</code>)</li>
+                    <li>Sensível a pequenas variações nos dados de treino</li>
+                </ul>
+            </div>
+            <div class="card a-amber" style="margin-top:14px">
+                <h4>Parâmetros de controle (hiperparâmetros)</h4>
+                <table style="font-size:.82rem; margin-top:6px">
+                    <tr><th>Parâmetro</th><th>Efeito</th></tr>
+                    <tr><td><code>max_depth</code></td><td>Profundidade máxima — controla complexidade</td></tr>
+                    <tr><td><code>min_samples_leaf</code></td><td>Mínimo de amostras numa folha — evita overfitting</td></tr>
+                    <tr><td><code>min_samples_split</code></td><td>Mínimo para dividir um nó</td></tr>
+                    <tr><td><code>criterion</code></td><td>'gini' (padrão) ou 'entropy'</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== RANDOM FOREST ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Random Forest — Ensemble de Árvores</h2><span class="slide-tag teal">Algoritmo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <h4>Ideia central: "a força do conjunto"</h4>
+                <p>Random Forest treina <strong>centenas de árvores de decisão</strong>, cada uma sobre uma amostra diferente dos dados (bootstrap) e com um subconjunto aleatório de preditores. A previsão final é a votação majoritária de todas as árvores.</p>
+            </div>
+            <div class="formula-box teal">
+                <div class="formula">ŷ = moda( T₁(x), T₂(x), …, Tₙ(x) )</div>
+                <div class="formula-label">n árvores votam — ganha a classe mais frequente</div>
+            </div>
+            <div class="card a-green" style="margin-top:14px">
+                <h4>Por que é mais robusto que uma árvore só?</h4>
+                <ul style="font-size:.88rem">
+                    <li>Cada árvore vê dados levemente diferentes → <strong>diversidade</strong></li>
+                    <li>Erros individuais se cancelam quando agregados</li>
+                    <li>Muito mais resistente a overfitting</li>
+                    <li>Fornece <strong>importância de variáveis</strong> naturalmente</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box">
+                <h3>Random Forest na prática</h3>
+                <p><strong>n_estimators:</strong> número de árvores. Mais é melhor até certo ponto (100–500 são valores típicos).</p>
+                <br>
+                <p><strong>max_features:</strong> número de preditores considerados em cada divisão. Padrão: √n_features para classificação.</p>
+                <br>
+                <p><strong>feature_importances_:</strong> o atributo mais valioso do RF — diz quais variáveis mais contribuem para as previsões.</p>
+            </div>
+            <div class="card a-rose" style="margin-top:14px">
+                <h4>Limitação principal</h4>
+                <p><strong>Interpretabilidade:</strong> centenas de árvores formam uma "caixa-preta". É preciso usar ferramentas como SHAP ou importância de variáveis para explicar o que o modelo aprendeu.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SVM ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>SVM — Máquina de Vetor de Suporte</h2><span class="slide-tag teal">Algoritmo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <h4>Ideia central: fronteira de máxima margem</h4>
+                <p>O SVM encontra o <strong>hiperplano</strong> que separa as classes com a <strong>maior margem possível</strong>. Os pontos mais próximos desse hiperplano são chamados de <strong>vetores de suporte</strong> — são eles que definem a fronteira.</p>
+            </div>
+            <div class="formula-box" style="background:#faf5ff; border-color:#d8b4fe">
+                <div class="formula" style="color:var(--purple)">margem = 2 / ‖w‖</div>
+                <div class="formula-label">Maximizar a margem = minimizar ‖w‖ (norma dos pesos)</div>
+            </div>
+            <div class="card a-purple" style="margin-top:14px">
+                <h4>Kernel Trick</h4>
+                <p>Quando as classes não são linearmente separáveis, o SVM usa <strong>funções kernel</strong> para mapear os dados para um espaço de maior dimensão onde a separação é possível.</p>
+                <ul style="font-size:.85rem; margin-top:8px">
+                    <li><code>kernel='linear'</code> — separação por linha/plano</li>
+                    <li><code>kernel='rbf'</code> — fronteiras curvas (mais comum)</li>
+                    <li><code>kernel='poly'</code> — fronteiras polinomiais</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box">
+                <h3>Hiperparâmetros-chave do SVM</h3>
+                <table style="font-size:.85rem; margin-top:8px">
+                    <tr><th>Parâmetro</th><th>Significado</th></tr>
+                    <tr><td><code>C</code></td><td>Penalidade por erro. C alto → menos erros, margem menor (mais overfitting). C baixo → margem maior, mais tolerante a erros.</td></tr>
+                    <tr><td><code>gamma</code></td><td>Alcance do kernel RBF. Alto → fronteira irregular (overfitting). Baixo → fronteira suave.</td></tr>
+                    <tr><td><code>kernel</code></td><td>Tipo de transformação (linear, rbf, poly)</td></tr>
+                </table>
+            </div>
+            <div class="card a-amber" style="margin-top:14px">
+                <h4>Quando usar SVM?</h4>
+                <ul style="font-size:.88rem">
+                    <li>Dados com <strong>muitas features e poucas amostras</strong></li>
+                    <li>Problemas de classificação binária bem definidos</li>
+                    <li>Quando a interpretabilidade <strong>não</strong> é prioridade</li>
+                    <li>Lento em datasets muito grandes (&gt;100k amostras)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== COMPARATIVO ALGORITMOS ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Comparativo — Qual Algoritmo Usar?</h2><span class="slide-tag teal">Guia Prático</span></div>
+    <table style="margin-bottom:20px">
+        <thead>
+            <tr>
+                <th>Algoritmo</th>
+                <th>Interpretabilidade</th>
+                <th>Escalabilidade</th>
+                <th>Padronização?</th>
+                <th>Overfitting</th>
+                <th>Melhor quando...</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>KNN</strong></td>
+                <td class="td-ok">Alta (intuitivo)</td>
+                <td class="td-bad">Baixa (lento)</td>
+                <td class="td-bad">Obrigatória</td>
+                <td class="td-warn">K pequeno → alto</td>
+                <td>Poucos dados, fronteira não-linear simples</td>
+            </tr>
+            <tr>
+                <td><strong>Árvore</strong></td>
+                <td class="td-ok">Muito alta (regras)</td>
+                <td class="td-mid">Boa</td>
+                <td class="td-ok">Não necessária</td>
+                <td class="td-bad">Alta sem poda</td>
+                <td>Explicabilidade é essencial (ex.: área jurídica)</td>
+            </tr>
+            <tr>
+                <td><strong>Random Forest</strong></td>
+                <td class="td-warn">Média (caixa-preta)</td>
+                <td class="td-ok">Muito boa</td>
+                <td class="td-ok">Não necessária</td>
+                <td class="td-ok">Baixa por natureza</td>
+                <td><strong>Caso geral</strong> — robusto e preciso</td>
+            </tr>
+            <tr>
+                <td><strong>SVM (RBF)</strong></td>
+                <td class="td-bad">Baixa</td>
+                <td class="td-warn">Média (lento &gt;100k)</td>
+                <td class="td-bad">Obrigatória</td>
+                <td class="td-warn">Depende do C/gamma</td>
+                <td>Dados de alta dimensionalidade (texto, imagem)</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="highlight-box">
+        <h3>Regra prática para começar</h3>
+        <p>Comece sempre com <strong>Random Forest</strong> como baseline. É robusto, funciona bem "fora da caixa" e fornece importância de variáveis. Se precisar de interpretabilidade, use Árvore. Se o dataset for muito pequeno (&lt;500 amostras), tente KNN. Use SVM para problemas de alta dimensionalidade.</p>
+    </div>
+</div>
+
+<!-- ===================== CODIGO CLASSIFICACAO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Código — Comparando os 4 Algoritmos</h2><span class="slide-tag teal">Na Prática</span></div>
+    <div class="two-col">
+        <div>
+<pre class="code-block" data-lang="Python">from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.metrics import classification_report
+
+# Configuração dos modelos (com Pipeline)
+modelos = {
+    'KNN (k=7)': Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', KNeighborsClassifier(n_neighbors=7))
+    ]),
+    'Árvore (max_depth=5)': Pipeline([
+        ('clf', DecisionTreeClassifier(max_depth=5,
+                                        random_state=42))
+    ]),
+    'Random Forest': Pipeline([
+        ('clf', RandomForestClassifier(n_estimators=200,
+                                        random_state=42))
+    ]),
+    'SVM (RBF)': Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', SVC(kernel='rbf', probability=True,
+                    random_state=42))
+    ]),
+}
+
+# Comparativo via CV 5-fold
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+resultados = {}
+
+for nome, pipe in modelos.items():
+    scores = cross_val_score(pipe, X_train, y_train,
+                              cv=cv, scoring='f1_weighted')
+    resultados[nome] = scores
+    print(f'{nome:30s} F1 = {scores.mean():.4f} '
+          f'± {scores.std():.4f}')</pre>
+        </div>
+        <div>
+            <div class="card a-green" style="margin-bottom:14px">
+                <h4>Por que usar Pipeline?</h4>
+                <ul style="font-size:.88rem">
+                    <li>Garante que o scaler só vê dados de treino em cada fold</li>
+                    <li>Evita <strong>data leakage</strong> — vazamento de informação do teste para o treino</li>
+                    <li>Simplifica a implantação: um único objeto para transformar e prever</li>
+                    <li>Compatible com GridSearchCV e cross_val_score</li>
+                </ul>
+            </div>
+            <div class="highlight-box">
+                <h3>O que é Data Leakage?</h3>
+                <p>Se você padroniza <strong>antes</strong> de dividir os dados, a média e o desvio-padrão calculados incluem informação do conjunto de teste. O modelo "vê" o futuro durante o treino — e o resultado parece melhor do que é na realidade.</p>
+                <br>
+                <p style="color:#5eead4; font-family:'Space Mono',monospace; font-size:.88rem">❌ Errado: scaler.fit(X) → split<br>✅ Certo: split → Pipeline(scaler + model)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SECAO 2 ===================== -->
+<div class="slide slide-section sec-purple">
+    <span class="section-number">02</span>
+    <div class="section-label">Parte 2</div>
+    <h2 class="section-title">Clusterização — Aprendizado Não Supervisionado</h2>
+</div>
+
+<!-- ===================== CONCEITO CLUSTER ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Clusterização — Agrupando sem Rótulos</h2><span class="slide-tag purple">Conceito</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-purple" style="margin-bottom:14px">
+                <h4>O que é clusterização?</h4>
+                <p>Algoritmo que agrupa pontos de dados similares em <strong>clusters</strong>, sem usar rótulos. O modelo descobre a estrutura oculta dos dados por conta própria.</p>
+                <br>
+                <p><strong>Princípio:</strong> pontos dentro do mesmo cluster devem ser <em>similares entre si</em> e <em>diferentes dos outros clusters</em>.</p>
+            </div>
+            <div class="card a-blue">
+                <h4>Aplicações reais</h4>
+                <ul style="font-size:.88rem">
+                    <li><strong>Segmentação de clientes:</strong> agrupar por comportamento de compra</li>
+                    <li><strong>Genômica:</strong> agrupar genes com expressão similar</li>
+                    <li><strong>Compressão de imagens:</strong> agrupar cores similares</li>
+                    <li><strong>Detecção de anomalias:</strong> pontos fora de qualquer cluster</li>
+                    <li><strong>Recomendação:</strong> agrupar usuários por preferências</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box" style="margin-bottom:14px">
+                <h3>Como avaliar clusters sem rótulos?</h3>
+                <p><strong>Silhouette Score:</strong> mede quão bem cada ponto está no seu cluster em relação aos outros. Varia de −1 a +1.</p>
+                <br>
+                <p style="font-family:'Space Mono',monospace; font-size:.9rem; color:#5eead4">silhouette ≈ +1 → cluster compacto e bem separado<br>silhouette ≈ 0 → ponto na fronteira entre clusters<br>silhouette ≈ −1 → ponto provavelmente no cluster errado</p>
+            </div>
+            <div class="card a-amber">
+                <h4>Inércia (WCSS)</h4>
+                <p>Soma das distâncias quadráticas de cada ponto ao centróide do seu cluster. Mede a <strong>compactação</strong> interna. Menor é melhor — mas cuidado: sempre decresce com mais clusters.</p>
+                <div class="formula-box amber" style="margin-top:10px; padding:10px">
+                    <div class="formula" style="font-size:.88rem">WCSS = Σₖ Σᵢ∈Cₖ ‖xᵢ − μₖ‖²</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== KMEANS ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>K-Means — Algoritmo Iterativo de Centróides</h2><span class="slide-tag purple">Algoritmo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-purple" style="margin-bottom:14px">
+                <h4>Passo a passo do K-Means</h4>
+                <ol class="step-list" style="margin-top:8px">
+                    <li><strong>Inicializar:</strong> posiciona K centróides aleatoriamente (ou com K-Means++)</li>
+                    <li><strong>Atribuir:</strong> cada ponto vai para o cluster do centróide mais próximo</li>
+                    <li><strong>Atualizar:</strong> recalcula cada centróide como a média dos seus pontos</li>
+                    <li><strong>Repetir</strong> os passos 2 e 3 até os centróides não mudarem</li>
+                </ol>
+            </div>
+            <div class="card a-blue" style="margin-top:0">
+                <h4>Método do Cotovelo (Elbow)</h4>
+                <p>Plota a inércia (WCSS) para K = 1, 2, ..., 10. O ponto onde a queda desacelera (o "cotovelo") indica o K ideal.</p>
+                <pre style="font-family:'Space Mono',monospace;font-size:.75rem;background:#1e1e2e;color:#cdd6f4;padding:10px;border-radius:6px;margin-top:8px">inercias = []
+for k in range(1, 11):
+    km = KMeans(n_clusters=k, random_state=42)
+    km.fit(X)
+    inercias.append(km.inertia_)
+plt.plot(range(1,11), inercias, 'o-')
+plt.xlabel('K')
+plt.ylabel('Inércia (WCSS)')</pre>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box" style="margin-bottom:14px">
+                <h3>Limitações do K-Means</h3>
+                <ul style="margin-top:8px">
+                    <li>Precisa definir K com antecedência</li>
+                    <li>Assume clusters <strong>esféricos</strong> e de tamanho similar</li>
+                    <li>Sensível a outliers (centróide é a média)</li>
+                    <li>Resultado varia com a inicialização aleatória (use <code>n_init=10</code>)</li>
+                    <li>Não identifica clusters de formato irregular</li>
+                </ul>
+            </div>
+            <div class="card a-rose">
+                <h4>K-Means++ — inicialização inteligente</h4>
+                <p>Em vez de centróides totalmente aleatórios, o K-Means++ escolhe cada centróide com probabilidade <strong>proporcional à distância</strong> dos centróides já escolhidos. Resulta em convergência mais rápida e estável.</p>
+                <pre style="font-family:'Space Mono',monospace;font-size:.78rem;background:#1e1e2e;color:#cdd6f4;padding:8px;border-radius:6px;margin-top:8px">KMeans(n_clusters=K,
+       init='k-means++',  # padrão
+       n_init=10,
+       random_state=42)</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== DBSCAN ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>DBSCAN — Clusters de Formato Livre e Ruído</h2><span class="slide-tag purple">Algoritmo</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-purple" style="margin-bottom:14px">
+                <h4>Density-Based Spatial Clustering of Applications with Noise</h4>
+                <p>O DBSCAN agrupa pontos que estão <strong>próximos entre si</strong> e tem densidade suficiente. Diferente do K-Means, ele:</p>
+                <ul style="font-size:.88rem; margin-top:8px">
+                    <li>Não precisa de K definido</li>
+                    <li>Encontra clusters de <strong>qualquer forma</strong></li>
+                    <li>Identifica <strong>ruídos/outliers</strong> automaticamente (label = −1)</li>
+                    <li>Funciona bem em dados geoespaciais</li>
+                </ul>
+            </div>
+            <div class="card a-blue">
+                <h4>Dois parâmetros</h4>
+                <table style="font-size:.85rem; margin-top:6px">
+                    <tr><th>Parâmetro</th><th>Significado</th></tr>
+                    <tr><td><code>eps</code></td><td>Raio de vizinhança: dois pontos são vizinhos se d ≤ eps</td></tr>
+                    <tr><td><code>min_samples</code></td><td>Mínimo de vizinhos para um ponto ser "core point"</td></tr>
+                </table>
+                <br>
+                <p style="font-size:.85rem"><strong>Core point:</strong> tem ≥ min_samples vizinhos no raio eps<br>
+                <strong>Border point:</strong> vizinho de um core point, mas não é core<br>
+                <strong>Noise point:</strong> não é core nem border → label = −1</p>
+            </div>
+        </div>
+        <div>
+            <div class="highlight-box" style="margin-bottom:14px">
+                <h3>K-Means vs DBSCAN</h3>
+                <table style="font-size:.85rem; margin-top:8px">
+                    <tr><th>Critério</th><th>K-Means</th><th>DBSCAN</th></tr>
+                    <tr><td>Precisa de K</td><td class="td-bad">Sim</td><td class="td-ok">Não</td></tr>
+                    <tr><td>Forma dos clusters</td><td class="td-bad">Esférica</td><td class="td-ok">Qualquer</td></tr>
+                    <tr><td>Outliers</td><td class="td-bad">Não detecta</td><td class="td-ok">Detecta</td></tr>
+                    <tr><td>Escalabilidade</td><td class="td-ok">Alta</td><td class="td-warn">Média</td></tr>
+                    <tr><td>Parâmetros</td><td>K</td><td>eps, min_samples</td></tr>
+                </table>
+            </div>
+            <div class="card a-amber">
+                <h4>Como escolher eps?</h4>
+                <p>Use o gráfico de distância dos k-vizinhos mais próximos. Calcule para cada ponto a distância ao seu k-ésimo vizinho, ordene crescente e procure o "cotovelo" — esse é um bom candidato para eps.</p>
+                <pre style="font-family:'Space Mono',monospace;font-size:.75rem;background:#1e1e2e;color:#cdd6f4;padding:8px;border-radius:6px;margin-top:8px">from sklearn.neighbors import NearestNeighbors
+nbrs = NearestNeighbors(n_neighbors=5).fit(X)
+dists, _ = nbrs.kneighbors(X)
+dists_sorted = np.sort(dists[:, -1])
+plt.plot(dists_sorted)</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SECAO 3 ===================== -->
+<div class="slide slide-section sec-blue">
+    <span class="section-number">03</span>
+    <div class="section-label">Parte 3</div>
+    <h2 class="section-title">Pipeline de Machine Learning — Do Dado ao Modelo</h2>
+</div>
+
+<!-- ===================== PIPELINE COMPLETO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Etapas de um Projeto de ML</h2><span class="slide-tag blue">Processo</span></div>
+    <div class="pipeline" style="margin-bottom:24px">
+        <div class="pipe-step">Problema<small>definir objetivo e métrica</small></div>
+        <div class="pipe-step">Dados<small>coleta e exploração</small></div>
+        <div class="pipe-step">Pré-processo<small>limpeza e features</small></div>
+        <div class="pipe-step">Modelagem<small>treino e validação</small></div>
+        <div class="pipe-step">Avaliação<small>métricas e diagnóstico</small></div>
+        <div class="pipe-step">Implantação<small>API ou relatório</small></div>
+    </div>
+    <div class="two-col">
+        <div>
+            <div class="card a-blue" style="margin-bottom:14px">
+                <h4>1. Definição do problema</h4>
+                <ul style="font-size:.88rem">
+                    <li>O que queremos prever? (variável alvo)</li>
+                    <li>Qual a métrica de sucesso? (F1, AUC, RMSE...)</li>
+                    <li>Classificação ou regressão?</li>
+                    <li>Dados disponíveis suficientes?</li>
+                </ul>
+            </div>
+            <div class="card a-teal">
+                <h4>2–3. Dados e Pré-processamento</h4>
+                <ul style="font-size:.88rem">
+                    <li>EDA: histogramas, correlações, outliers</li>
+                    <li>Tratar valores faltantes (imputação ou remoção)</li>
+                    <li>Codificar categorias (One-Hot, Label Encoding)</li>
+                    <li>Padronizar/normalizar variáveis numéricas</li>
+                    <li>Engenharia de features: criar novos atributos úteis</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="card a-green" style="margin-bottom:14px">
+                <h4>4–5. Modelagem e Avaliação</h4>
+                <ul style="font-size:.88rem">
+                    <li>Dividir dados: treino / validação / teste</li>
+                    <li>Testar múltiplos algoritmos com CV</li>
+                    <li>Otimizar hiperparâmetros (GridSearchCV, RandomizedSearch)</li>
+                    <li>Avaliar no conjunto de teste (uma única vez!)</li>
+                    <li>Análise de erros: onde o modelo erra mais?</li>
+                </ul>
+            </div>
+            <div class="highlight-box">
+                <h3>Golden rule da avaliação</h3>
+                <p>O conjunto de <strong>teste deve ser usado apenas UMA vez</strong> — no final. Se você usar o teste para escolher hiperparâmetros, ele contamina a avaliação e o resultado é otimista. Use <strong>validação cruzada</strong> (CV) para todas as decisões de modelagem.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== GRIDSEARCHCV ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>GridSearchCV — Busca dos Melhores Hiperparâmetros</h2><span class="slide-tag blue">Técnica</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-blue" style="margin-bottom:14px">
+                <h4>O que são hiperparâmetros?</h4>
+                <p>Configurações do modelo definidas <strong>antes</strong> do treino (não aprendidas dos dados). Exemplos: K do KNN, max_depth da árvore, n_estimators do Random Forest.</p>
+                <br>
+                <p>O GridSearchCV testa <strong>todas as combinações possíveis</strong> de uma grade de valores usando validação cruzada, e retorna a melhor configuração.</p>
+            </div>
+<pre class="code-block" data-lang="Python">from sklearn.model_selection import GridSearchCV
+
+pipe_rf = Pipeline([
+    ('clf', RandomForestClassifier(random_state=42))
+])
+
+param_grid = {
+    'clf__n_estimators': [100, 200, 300],
+    'clf__max_depth':    [None, 10, 20],
+    'clf__min_samples_leaf': [1, 3, 5],
+}
+
+gs = GridSearchCV(
+    pipe_rf, param_grid,
+    cv=StratifiedKFold(5),
+    scoring='f1_weighted',
+    n_jobs=-1,   # paraleliza
+    verbose=1
+)
+gs.fit(X_train, y_train)
+
+print('Melhores parâmetros:')
+print(gs.best_params_)
+print(f'Melhor F1 (CV): {gs.best_score_:.4f}')</pre>
+        </div>
+        <div>
+            <div class="highlight-box" style="margin-bottom:14px">
+                <h3>GridSearch vs RandomizedSearch</h3>
+                <p><strong>GridSearchCV:</strong> testa todas as combinações. Garantido encontrar o melhor da grade, mas pode ser lento com muitos parâmetros.</p>
+                <br>
+                <p><strong>RandomizedSearchCV:</strong> testa N combinações aleatórias da grade. Mais rápido, geralmente encontra resultado quase tão bom. Use quando a grade tiver muitos valores.</p>
+                <br>
+                <p style="font-family:'Space Mono',monospace; color:#5eead4; font-size:.88rem">Grid: 3×3×3 = 27 combinações × 5 folds = 135 modelos<br>Randomized(n_iter=20): 20 × 5 = 100 modelos</p>
+            </div>
+            <div class="card a-amber">
+                <h4>Dica: n_jobs=-1</h4>
+                <p>O parâmetro <code>n_jobs=-1</code> usa <strong>todos os núcleos da CPU</strong> disponíveis para paralelizar os treinos. Em datasets grandes, isso reduz o tempo drasticamente.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== CODIGO PIPELINE COMPLETO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Código — Pipeline ML Completo</h2><span class="slide-tag blue">Na Prática</span></div>
+    <div class="two-col">
+        <div>
+<pre class="code-block" data-lang="Python">import numpy as np
+import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.cluster import KMeans
+from sklearn.model_selection import (
+    train_test_split, GridSearchCV, StratifiedKFold
+)
+from sklearn.metrics import (
+    classification_report, roc_auc_score,
+    silhouette_score
+)
+
+# ── Classificação ──────────────────────────────────────────
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+pipe = Pipeline([
+    ('scaler', StandardScaler()),
+    ('clf', RandomForestClassifier(random_state=42))
+])
+
+param_grid = {
+    'clf__n_estimators': [100, 200],
+    'clf__max_depth':    [None, 10, 20],
+}
+
+gs = GridSearchCV(pipe, param_grid,
+                  cv=StratifiedKFold(5),
+                  scoring='f1_weighted',
+                  n_jobs=-1)
+gs.fit(X_train, y_train)
+
+# Avaliação FINAL (uma única vez no teste!)
+y_pred = gs.best_estimator_.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+# ── Clusterização ──────────────────────────────────────────
+km = KMeans(n_clusters=3, init='k-means++',
+            n_init=10, random_state=42)
+labels = km.fit_predict(X_scaled)
+sil = silhouette_score(X_scaled, labels)
+print(f'Silhouette Score: {sil:.4f}')</pre>
+        </div>
+        <div>
+            <div class="card a-green" style="margin-bottom:14px">
+                <h4>Boas práticas do Pipeline ML</h4>
+                <ul style="font-size:.88rem">
+                    <li>Sempre use <strong>Pipeline</strong> para evitar data leakage</li>
+                    <li>Padronize antes de KNN e SVM (obrigatório); RF e Árvores não precisam</li>
+                    <li>Use <strong>StratifiedKFold</strong> para dados desbalanceados</li>
+                    <li>Avalie com métricas adequadas: AUC para classes desbalanceadas, F1 para equilíbrio</li>
+                    <li>Toque no conjunto de teste <strong>apenas uma vez</strong></li>
+                    <li>Documente todos os hiperparâmetros e versões</li>
+                </ul>
+            </div>
+            <div class="highlight-box">
+                <h3>Importância de variáveis (Random Forest)</h3>
+                <p>Após o treino, acesse quais features foram mais úteis:</p>
+                <pre style="font-family:'Space Mono',monospace; font-size:.82rem; color:#5eead4; margin-top:8px">rf = gs.best_estimator_.named_steps['clf']
+importancias = pd.Series(
+    rf.feature_importances_,
+    index=X.columns
+).sort_values(ascending=False)
+importancias.plot(kind='bar')</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== RESUMO ===================== -->
+<div class="slide slide-content">
+    <div class="slide-header"><h2>Resumo da Aula</h2><span class="slide-tag dark">Encerramento</span></div>
+    <div class="two-col">
+        <div>
+            <div class="card a-teal" style="margin-bottom:14px">
+                <span class="card-icon">🎯</span>
+                <h4>Algoritmos de Classificação</h4>
+                <ul>
+                    <li><strong>KNN:</strong> simples, baseado em distância — sempre padronize</li>
+                    <li><strong>Árvore de Decisão:</strong> interpretável, tendência ao overfitting — use poda</li>
+                    <li><strong>Random Forest:</strong> robusto, ensemble de árvores — melhor baseline geral</li>
+                    <li><strong>SVM:</strong> fronteira de máxima margem — bom para alta dimensionalidade</li>
+                </ul>
+            </div>
+            <div class="card a-purple">
+                <span class="card-icon">🔵</span>
+                <h4>Clusterização</h4>
+                <ul>
+                    <li><strong>K-Means:</strong> rápido, clusters esféricos — use cotovelo + silhouette para escolher K</li>
+                    <li><strong>DBSCAN:</strong> clusters de qualquer forma, detecta outliers — precisa tunar eps e min_samples</li>
+                    <li>Sempre padronize antes de clusterizar (mesma razão do KNN)</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="card a-blue" style="margin-bottom:14px">
+                <span class="card-icon">⚙️</span>
+                <h4>Pipeline ML</h4>
+                <ul>
+                    <li>Pipeline evita data leakage e simplifica o código</li>
+                    <li>GridSearchCV otimiza hiperparâmetros via CV</li>
+                    <li>Toque no teste apenas UMA vez — no final</li>
+                    <li>Sempre compare múltiplos modelos com a mesma métrica</li>
+                </ul>
+            </div>
+            <div class="stat-grid" style="margin-top:0">
+                <div class="stat"><span class="stat-number" style="color:var(--teal)">KNN</span><div class="stat-label">vizinhos mais próximos</div></div>
+                <div class="stat"><span class="stat-number" style="color:var(--green)">RF</span><div class="stat-label">ensemble de árvores</div></div>
+                <div class="stat"><span class="stat-number" style="color:var(--purple)">K-Means</span><div class="stat-label">centróides iterativos</div></div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:center; margin-top:28px;">
+        <a id="notebookDownload"
+           href="./Aula_11_Classificacao_Clusterizacao.ipynb"
+           data-raw-url="https://raw.githubusercontent.com/DiegoRInacio/aulas_ds/main/Aula_11_Classificacao_Clusterizacao.ipynb"
+           download="Aula_11_Classificacao_Clusterizacao.ipynb"
+           type="application/x-ipynb+json"
+           style="display:inline-block; background:#15803d; color:#fff; font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; padding:12px 28px; border-radius:24px; text-decoration:none; border:2px solid #15803d; transition:all .2s"
+           onmouseover="this.style.background='#166534'" onmouseout="this.style.background='#15803d'">
+            ⬇ Baixar Notebook de Exercícios (.ipynb)
+        </a>
+        <p style="font-family:'Space Mono',monospace; font-size:.78rem; color:var(--muted); margin-top:10px;">
+            Abra no Jupyter, Google Colab ou VS Code
+        </p>
+    </div>
+    <p style="text-align:center; font-family:'Space Mono',monospace; font-size:.82rem; color:var(--muted); margin-top:18px;">
+        Prof. Mesc. Diego Ramos Inácio · Ciência de Dados · Univassouras · 2026
+    </p>
+</div>
+
+</div><!-- /presentation-container -->
+
+<div class="navigation">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Anterior</button>
+    <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">?</span></span>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Próximo →</button>
+    <button class="pdf-btn" id="pdfBtn" onclick="window.print()">⬇ Baixar PDF</button>
+</div>
+
+<script>
+    let cur = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    document.getElementById('totalSlides').textContent = total;
+    function showSlide(i) {
+        slides.forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+        slides[i].style.display = 'flex';
+        slides[i].classList.add('active');
+        slides[i].scrollTop = 0;
+        document.getElementById('currentSlide').textContent = i + 1;
+        document.getElementById('prevBtn').disabled = (i === 0);
+        document.getElementById('nextBtn').disabled = (i === total - 1);
+        document.getElementById('pdfBtn').classList.toggle('visible', i === total - 1);
+    }
+    function changeSlide(delta) {
+        const next = cur + delta;
+        if (next >= 0 && next < total) { cur = next; showSlide(cur); }
+    }
+    const notebookDownload = document.getElementById('notebookDownload');
+    notebookDownload.addEventListener('click', async e => {
+        if (window.location.protocol === 'file:') return;
+
+        e.preventDefault();
+        try {
+            let response = await fetch(notebookDownload.href, { cache: 'no-store' });
+            if (!response.ok && notebookDownload.dataset.rawUrl) {
+                response = await fetch(notebookDownload.dataset.rawUrl, { cache: 'no-store' });
+            }
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = notebookDownload.download;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+            window.location.href = notebookDownload.dataset.rawUrl || notebookDownload.href;
+        }
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+    });
+    showSlide(0);
+</script>
+</body>
+</html>
