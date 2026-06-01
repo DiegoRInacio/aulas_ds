@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulado P2 — Ciência de Dados</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#060d1a,#0d2137,#071525);background-attachment:fixed;color:#e2e8f0;min-height:100vh;padding:20px;}
+.container{max-width:860px;margin:0 auto;}
+.header{text-align:center;padding:40px 20px 20px;}
+.header h1{font-size:2.4rem;background:linear-gradient(45deg,#4facfe,#00f2fe,#43e97b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.header p{color:#7dd3fc;font-size:1rem;}
+.badge-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.badge{padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:bold;}
+.badge-mc{background:rgba(79,172,254,.2);color:#4facfe;border:1px solid rgba(79,172,254,.4);}
+.badge-py{background:rgba(255,107,107,.2);color:#ff6b6b;border:1px solid rgba(255,107,107,.4);}
+.badge-bk{background:rgba(67,233,123,.2);color:#43e97b;border:1px solid rgba(67,233,123,.4);}
+.badge-q{background:rgba(125,211,252,.15);color:#7dd3fc;border:1px solid rgba(125,211,252,.3);}
+/* apoio */
+#apoio-btn{position:fixed;bottom:90px;right:20px;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#060d1a;border:none;border-radius:50px;padding:13px 20px;font-size:.88rem;font-weight:bold;cursor:pointer;z-index:900;box-shadow:0 4px 20px rgba(79,172,254,.5);transition:all .3s;white-space:nowrap;}
+#apoio-btn:hover{transform:scale(1.07);}
+#apoio-drawer{position:fixed;top:0;right:-660px;width:650px;height:100vh;background:#060d1a;border-left:2px solid rgba(79,172,254,.4);z-index:950;transition:right .35s ease;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.6);overflow:hidden;}
+#apoio-drawer.open{right:0;}
+#apoio-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(79,172,254,.12);border-bottom:1px solid rgba(79,172,254,.2);flex-shrink:0;}
+#apoio-head span{color:#4facfe;font-weight:bold;font-size:.95rem;}
+#apoio-close{background:none;border:none;color:#4facfe;font-size:1.4rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px;}
+#apoio-close:hover{background:rgba(79,172,254,.2);}
+#apoio-body{flex:1;overflow-y:auto;padding:18px;}
+#apoio-body h3{color:#4facfe;font-size:.9rem;margin:16px 0 6px;border-bottom:1px solid rgba(79,172,254,.2);padding-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+#apoio-body h3:first-child{margin-top:0;}
+#apoio-body p,#apoio-body li{font-size:.81rem;color:#b0cde8;line-height:1.65;margin-bottom:3px;}
+#apoio-body ul{padding-left:14px;margin-bottom:8px;}
+#apoio-body code{background:rgba(0,0,0,.45);padding:1px 5px;border-radius:3px;font-family:'Courier New',monospace;color:#ffd700;font-size:.79rem;}
+#apoio-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:940;}
+#apoio-overlay.show{display:block;}
+@media(max-width:680px){#apoio-drawer{width:100%;right:-100%;}}
+/* progress */
+.prog-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin:20px 0;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#4facfe,#43e97b);border-radius:3px;transition:width .4s;}
+.prog-label{text-align:right;font-size:.78rem;color:#7dd3fc;margin-top:4px;}
+/* student form */
+.student-form{background:rgba(255,255,255,.07);border-radius:14px;padding:22px 25px;margin-bottom:24px;border:1px solid rgba(79,172,254,.2);}
+.student-form label{display:block;color:#4facfe;font-weight:bold;margin-bottom:8px;font-size:.95rem;}
+.student-form input{width:100%;padding:11px 15px;background:rgba(0,0,0,.3);border:1px solid rgba(79,172,254,.3);border-radius:8px;color:#fff;font-size:1rem;outline:none;}
+.student-form input:focus{border-color:#4facfe;}
+/* section divider */
+.sec-div{text-align:center;padding:24px 0 12px;position:relative;}
+.sec-div::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,.08);}
+.sec-div span{position:relative;background:#071525;padding:6px 18px;border-radius:20px;font-size:.83rem;font-weight:bold;}
+/* question card */
+.q-card{background:rgba(255,255,255,.055);border-radius:14px;padding:24px;margin-bottom:18px;border:1px solid rgba(255,255,255,.07);border-left:4px solid #4facfe;transition:border-color .3s;}
+.q-card.py{border-left-color:#ff6b6b;}
+.q-card.bonus{border-left-color:#43e97b;}
+.q-num{font-size:.78rem;color:#7dd3fc;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.q-topic-tag{display:inline-block;font-size:.71rem;padding:2px 8px;border-radius:10px;margin-bottom:8px;background:rgba(79,172,254,.12);color:#7dd3fc;border:1px solid rgba(79,172,254,.25);}
+.q-card.py .q-topic-tag{background:rgba(255,107,107,.12);color:#ff9a9e;border-color:rgba(255,107,107,.3);}
+.q-card.bonus .q-topic-tag{background:rgba(67,233,123,.12);color:#43e97b;border-color:rgba(67,233,123,.3);}
+.q-text{font-size:1rem;line-height:1.65;color:#eef2ff;margin-bottom:18px;}
+.q-text code{background:rgba(0,0,0,.35);padding:2px 7px;border-radius:4px;font-family:'Courier New',monospace;color:#ffd700;font-size:.88rem;}
+.q-text strong{color:#7dd3fc;}
+.q-card.py .q-text strong{color:#ff9a9e;}
+.q-card.bonus .q-text strong{color:#43e97b;}
+/* options */
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{display:flex;align-items:flex-start;gap:11px;padding:11px 14px;background:rgba(0,0,0,.2);border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.opt:hover{border-color:rgba(79,172,254,.4);background:rgba(79,172,254,.07);}
+.opt.selected{border-color:rgba(79,172,254,.6);background:rgba(79,172,254,.1);}
+.opt input[type=radio]{accent-color:#4facfe;width:16px;height:16px;flex-shrink:0;margin-top:2px;}
+.opt label{cursor:pointer;font-size:.93rem;color:#ddd;line-height:1.5;}
+/* python textarea */
+.py-area{width:100%;min-height:100px;background:rgba(0,0,0,.45);border:1px solid rgba(255,107,107,.4);border-radius:8px;color:#ffd700;font-family:'Courier New',monospace;font-size:.88rem;padding:13px;resize:vertical;line-height:1.6;outline:none;}
+.py-area:focus{border-color:#ff6b6b;}
+.py-hint{font-size:.79rem;color:#7dd3fc;margin-top:6px;font-style:italic;}
+/* submit */
+.submit-wrap{text-align:center;padding:30px 0 20px;}
+.btn-submit{background:linear-gradient(45deg,#4facfe,#43e97b);color:#060d1a;border:none;padding:15px 50px;border-radius:30px;font-size:1.1rem;font-weight:bold;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(79,172,254,.3);}
+.btn-submit:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(79,172,254,.5);}
+/* results */
+#results-section{display:none;}
+.score-wrap{text-align:center;padding:40px 20px 20px;}
+.score-ring{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:170px;height:170px;border-radius:50%;border:5px solid;margin:10px auto 16px;}
+.score-n{font-size:3rem;font-weight:bold;line-height:1;}
+.score-sub{font-size:.85rem;color:#7dd3fc;margin-top:4px;}
+.score-meta{color:#7dd3fc;margin-top:6px;}
+.bonus-badge{display:inline-block;background:rgba(67,233,123,.15);border:1px solid rgba(67,233,123,.3);color:#43e97b;padding:6px 16px;border-radius:20px;font-size:.88rem;margin-top:10px;}
+/* result items */
+.r-item{background:rgba(255,255,255,.055);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+.r-item.ok{border-left:4px solid #80ffb4;}
+.r-item.nok{border-left:4px solid #ff8a80;}
+.r-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:bold;margin-bottom:8px;}
+.r-badge.ok{background:rgba(0,255,128,.15);color:#80ffb4;border:1px solid rgba(0,255,128,.3);}
+.r-badge.nok{background:rgba(255,100,80,.15);color:#ff8a80;border:1px solid rgba(255,100,80,.3);}
+.r-q{font-size:.88rem;color:#7dd3fc;margin-bottom:6px;}
+.r-ans{font-family:'Courier New',monospace;font-size:.82rem;background:rgba(0,0,0,.3);padding:8px 12px;border-radius:6px;margin:6px 0;word-break:break-word;white-space:pre-wrap;}
+.r-exp{font-size:.82rem;color:#94a3b8;margin-top:8px;border-top:1px solid rgba(255,255,255,.07);padding-top:8px;}
+.r-exp span{color:#4facfe;font-weight:bold;}
+/* action buttons */
+.action-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:28px 0;}
+.btn{padding:12px 26px;border-radius:25px;border:none;cursor:pointer;font-size:.95rem;font-weight:bold;transition:all .3s;}
+.btn:hover{transform:translateY(-2px);}
+.btn-pdf{background:linear-gradient(45deg,#4facfe,#00f2fe);color:#060d1a;}
+.btn-sqlite{background:linear-gradient(45deg,#43e97b,#38bdf8);color:#060d1a;}
+.btn-hist{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.db-box{background:rgba(79,172,254,.08);border:1px solid rgba(79,172,254,.3);border-radius:10px;padding:14px 18px;margin:16px 0;font-size:.87rem;color:#7dd3fc;}
+.db-box strong{color:#4facfe;}
+.hist-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem;}
+.hist-table th{background:rgba(79,172,254,.2);color:#4facfe;padding:10px;text-align:left;}
+.hist-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06);}
+#notif{position:fixed;top:20px;right:20px;background:rgba(0,255,128,.12);border:1px solid rgba(0,255,128,.4);color:#80ffb4;padding:13px 18px;border-radius:10px;z-index:999;display:none;max-width:300px;font-size:.9rem;}
+/* print */
+@media print{
+  body{background:#fff!important;color:#000!important;font-size:10pt;}
+  .no-print{display:none!important;}
+  #quiz-section,#results-section{display:none!important;}
+  #print-area{display:block!important;}
+  .print-header{text-align:center;padding-bottom:12px;border-bottom:2px solid #333;margin-bottom:16px;}
+  .print-header h2{font-size:16pt;margin-bottom:4px;}
+  .print-header p{font-size:10pt;color:#555;}
+  .print-score{font-size:20pt;font-weight:bold;text-align:center;margin:12px 0;}
+  .print-item{page-break-inside:avoid;margin-bottom:12px;padding:10px 10px 10px 14px;border-left:3px solid #999;}
+  .print-ok{border-left-color:green;}
+  .print-nok{border-left-color:red;}
+  .print-label{font-weight:bold;font-size:9pt;}
+  .print-label.ok{color:green;}
+  .print-label.nok{color:red;}
+  .print-q{font-size:9pt;color:#444;margin:3px 0;}
+  .print-a{font-family:monospace;font-size:8.5pt;background:#f5f5f5;padding:4px 8px;border-radius:3px;margin:3px 0;white-space:pre-wrap;word-break:break-word;}
+  .print-e{font-size:8pt;color:#666;margin-top:4px;}
+}
+</style>
+</head>
+<body>
+
+<div id="notif"></div>
+<div id="print-area" style="display:none"></div>
+
+<!-- Reference drawer -->
+<div id="apoio-overlay" onclick="closeApoio()"></div>
+<button id="apoio-btn" class="no-print" onclick="openApoio()">📚 Referência Rápida</button>
+<div id="apoio-drawer">
+  <div id="apoio-head">
+    <span>📚 Referência Rápida — Ciência de Dados</span>
+    <button id="apoio-close" onclick="closeApoio()">✕</button>
+  </div>
+  <div id="apoio-body">
+    <h3>Métricas de Classificação</h3>
+    <ul>
+      <li><code>Accuracy = (TP + TN) / Total</code></li>
+      <li><code>Precision = TP / (TP + FP)</code> — evitar falsos positivos</li>
+      <li><code>Recall = TP / (TP + FN)</code> — evitar falsos negativos</li>
+      <li><code>F1 = 2 × (P × R) / (P + R)</code> — equilíbrio P/R</li>
+    </ul>
+    <h3>Métricas de Regressão</h3>
+    <ul>
+      <li><code>R² = 1 − SSres/SStot</code> → proporção da variância explicada</li>
+      <li><code>RMSE = √(Σ(ŷ−y)²/n)</code> → erro na unidade original</li>
+      <li><code>MAE = Σ|ŷ−y|/n</code> → erro médio absoluto</li>
+    </ul>
+    <h3>Imports sklearn Frequentes</h3>
+    <ul>
+      <li><code>from sklearn.linear_model import LinearRegression, LogisticRegression</code></li>
+      <li><code>from sklearn.ensemble import RandomForestClassifier</code></li>
+      <li><code>from sklearn.cluster import KMeans</code></li>
+      <li><code>from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV</code></li>
+      <li><code>from sklearn.metrics import r2_score, confusion_matrix, classification_report</code></li>
+      <li><code>from sklearn.pipeline import Pipeline</code></li>
+      <li><code>from sklearn.preprocessing import StandardScaler</code></li>
+    </ul>
+    <h3>K-means — Fluxo</h3>
+    <ul>
+      <li>Inicializa k centróides aleatórios</li>
+      <li>Atribui cada ponto ao centróide mais próximo</li>
+      <li>Recalcula centróides (média dos pontos do cluster)</li>
+      <li>Repete até convergência (inércia mínima)</li>
+      <li><code>kmeans.inertia_</code> → soma das distâncias²</li>
+      <li><code>kmeans.cluster_centers_</code> → centróides finais</li>
+    </ul>
+    <h3>Random Forest — Conceitos</h3>
+    <ul>
+      <li>N árvores em bootstrap samples (bagging)</li>
+      <li>Cada split: subset aleatório de features</li>
+      <li>Classificação: votação; Regressão: média</li>
+      <li><code>rf.feature_importances_</code> → importância de cada feature</li>
+    </ul>
+    <h3>PySpark — Operações Chave</h3>
+    <ul>
+      <li><code>spark.createDataFrame(dados, schema)</code></li>
+      <li><code>df.filter(df.col &gt; valor)</code></li>
+      <li><code>df.groupBy("col").agg(F.sum("x"), F.avg("y"))</code></li>
+      <li><code>df.orderBy(F.col("x").desc())</code></li>
+      <li><code>df.select(F.explode(F.split(...)))</code></li>
+      <li><code>df.cache() / df.unpersist()</code></li>
+    </ul>
+    <h3>CRISP-DM — Fases</h3>
+    <ul>
+      <li>1. Business Understanding (entender o problema)</li>
+      <li>2. Data Understanding (explorar os dados)</li>
+      <li>3. Data Preparation (limpar e transformar)</li>
+      <li>4. Modeling (treinar modelos)</li>
+      <li>5. Evaluation (avaliar com métricas)</li>
+      <li>6. Deployment (implantar em produção)</li>
+    </ul>
+    <h3>LGPD — Conceitos</h3>
+    <ul>
+      <li>Dados sensíveis: saúde, raça, biometria, orientação sexual, religião</li>
+      <li>Anonimização: irreversível → dado deixa de ser pessoal</li>
+      <li>Pseudonimização: reversível com chave → ainda dado pessoal</li>
+      <li>Bases legais: consentimento, legítimo interesse, obrigação legal...</li>
+    </ul>
+    <h3>Visualização — Quando Usar Cada Gráfico</h3>
+    <ul>
+      <li>Histograma / Boxplot → distribuição de variável contínua</li>
+      <li>Barras → comparação entre categorias</li>
+      <li>Linha → evolução temporal</li>
+      <li>Dispersão (scatter) → correlação entre duas variáveis</li>
+      <li>Heatmap → correlações entre múltiplas variáveis</li>
+      <li>Pizza → proporções (máx. 5 categorias)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-section">
+<div class="container">
+  <div class="header">
+    <h1>📊 Simulado P2 — Ciência de Dados</h1>
+    <p>Univassouras 2026 · Prof. Mesc. Diego Ramos Inácio</p>
+    <div class="badge-row">
+      <span class="badge badge-q">35 Questões</span>
+      <span class="badge badge-mc">20 Objetivas</span>
+      <span class="badge badge-py">10 Código Python</span>
+      <span class="badge badge-bk">5 Optativas Bônus ⭐</span>
+    </div>
+    <p style="font-size:.8rem;color:#7dd3fc;margin-top:12px;">Tópicos: Visualização · NoSQL · Mineração · Ética · Estatística · Regressão · Classificação · Clusterização · Spark</p>
+  </div>
+
+  <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div class="prog-label"><span id="prog-lbl">0 / 35 respondidas</span></div>
+
+  <div class="student-form">
+    <label for="sname">Nome completo do aluno</label>
+    <input type="text" id="sname" placeholder="Digite seu nome completo...">
+  </div>
+
+  <div id="qcontainer"></div>
+
+  <div class="submit-wrap">
+    <button class="btn-submit no-print" onclick="submitQuiz()">🚀 Finalizar Simulado</button>
+  </div>
+</div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-section">
+<div class="container">
+  <div class="score-wrap">
+    <h2 style="font-size:1.8rem;color:#4facfe;">Resultado do Simulado P2</h2>
+    <div class="score-ring" id="score-ring">
+      <div class="score-n" id="score-n">—</div>
+      <div class="score-sub" id="score-sub">acertos / 30</div>
+    </div>
+    <div id="bonus-display"></div>
+    <div class="score-meta" id="score-meta"></div>
+  </div>
+
+  <div class="db-box" id="db-info">
+    <strong>💾 SQLite:</strong> resultado salvo no banco embutido.
+  </div>
+
+  <div class="action-btns no-print">
+    <button class="btn btn-pdf" onclick="exportPDF()">📄 Exportar PDF (entrega AVA)</button>
+    <button class="btn btn-sqlite" onclick="downloadSQLite()">⬇️ Baixar .sqlite</button>
+    <button class="btn btn-hist" onclick="toggleHist()">📊 Histórico</button>
+  </div>
+
+  <div id="hist-area" style="display:none;margin-bottom:24px;">
+    <div class="db-box" style="overflow-x:auto;">
+      <strong>Histórico salvo:</strong>
+      <table class="hist-table" id="hist-table"></table>
+    </div>
+  </div>
+
+  <div id="review-container"></div>
+
+  <div class="action-btns no-print" style="margin-top:10px;">
+    <button class="btn btn-hist" onclick="location.reload()">🔄 Novo Simulado</button>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"></script>
+<script>
+const MAIN_TOTAL = 30;
+
+const QS = [
+// ── OBJETIVAS (20) ──────────────────────────────────────────────────────────
+{id:1,type:'mc',topic:'Visualização',
+ q:'Qual gráfico é mais adequado para visualizar a <strong>distribuição</strong> de uma variável numérica contínua e identificar <strong>outliers</strong>?',
+ opts:['Gráfico de pizza (pie chart)','Histograma ou Boxplot','Gráfico de barras empilhadas','Mapa de calor (heatmap)'],
+ c:1,
+ exp:'Histogramas mostram a frequência por intervalo; boxplots mostram mediana, quartis e outliers visualmente. São as ferramentas padrão para análise de distribuição de variáveis contínuas.'},
+
+{id:2,type:'mc',topic:'Visualização',
+ q:'Em <strong>storytelling analítico</strong>, qual é o papel principal de um gráfico em uma apresentação executiva?',
+ opts:['Mostrar todos os dados coletados para máxima transparência','Comunicar uma mensagem clara e específica que suporte uma decisão','Apresentar a maior quantidade possível de variáveis simultaneamente','Substituir completamente o relatório técnico'],
+ c:1,
+ exp:'Storytelling analítico seleciona e contextualiza dados para uma narrativa. O gráfico deve ter uma mensagem central clara — não exibir "todos os dados", mas os dados certos para a decisão certa.'},
+
+{id:3,type:'mc',topic:'NoSQL',
+ q:'Quais são os <strong>4 tipos principais</strong> de bancos de dados NoSQL?',
+ opts:['Relacional, Hierárquico, Rede e Orientado a Objetos','Chave-Valor, Documento, Coluna Larga e Grafo','SQL, MongoDB, Redis e Cassandra','OLTP, OLAP, Data Lake e Data Warehouse'],
+ c:1,
+ exp:'Os 4 tipos de NoSQL: Key-Value (Redis), Documento (MongoDB), Wide Column (Cassandra, HBase) e Grafo (Neo4j). Cada um é otimizado para padrões de acesso específicos.'},
+
+{id:4,type:'mc',topic:'NoSQL',
+ q:'O <strong>MongoDB</strong> armazena dados em qual formato interno?',
+ opts:['Tabelas relacionais com linhas e colunas','Documentos BSON (Binary JSON) com esquema flexível','Grafos de nós e relacionamentos','Pares chave-valor sem estrutura hierárquica'],
+ c:1,
+ exp:'MongoDB usa BSON (Binary JSON). Os documentos têm esquema flexível — campos podem variar entre documentos da mesma coleção, diferente das tabelas SQL.'},
+
+{id:5,type:'mc',topic:'Mineração de Dados',
+ q:'Na metodologia <strong>CRISP-DM</strong>, qual é a ordem correta das fases?',
+ opts:['Dados → Modelagem → Avaliação → Negócio → Implantação','Entendimento do Negócio → Dados → Preparação dos Dados → Modelagem → Avaliação → Implantação','Coleta → Limpeza → Análise → Modelagem → Entrega','Definição → Medição → Análise → Melhoria → Controle'],
+ c:1,
+ exp:'CRISP-DM: Business Understanding → Data Understanding → Data Preparation → Modeling → Evaluation → Deployment. É cíclico — resultados de qualquer fase podem retornar a fases anteriores.'},
+
+{id:6,type:'mc',topic:'Mineração de Dados',
+ q:'Modelo com <strong>95% de acurácia no treino</strong> e <strong>60% no teste</strong> sofre de:',
+ opts:['Underfitting — modelo muito simples','Overfitting — memorizou o treino e não generaliza','Data leakage — dados de teste usados no treino','Class imbalance — classes desbalanceadas'],
+ c:1,
+ exp:'Overfitting: o modelo decorou os dados de treino incluindo ruído. Alta performance no treino, baixa no teste → não generaliza. Soluções: regularização, cross-validation, mais dados.'},
+
+{id:7,type:'mc',topic:'Ética e Governança',
+ q:'Segundo a <strong>LGPD</strong>, quais são os <strong>dados sensíveis</strong>?',
+ opts:['Qualquer dado de pessoa física coletado digitalmente','Dados sobre origem racial/étnica, saúde, orientação sexual, biometria e dados genéticos','Apenas dados financeiros como CPF e conta bancária','Dados de menores de 18 anos exclusivamente'],
+ c:1,
+ exp:'LGPD Art. 5º: dados sensíveis incluem origem racial/étnica, convicção religiosa, opinião política, filiação sindical, saúde, vida sexual, dados genéticos ou biométricos. Requerem consentimento explícito.'},
+
+{id:8,type:'mc',topic:'Ética e Governança',
+ q:'Qual a diferença entre <strong>anonimização</strong> e <strong>pseudonimização</strong>?',
+ opts:['São sinônimos — ambas removem completamente a identidade','Anonimização torna impossível reidentificar; pseudonimização substitui por código mas reidentificação é possível com chave','Pseudonimização é mais segura pois usa criptografia obrigatória','Anonimização só se aplica a dados digitais'],
+ c:1,
+ exp:'Anonimização é irreversível: o dado deixa de ser pessoal e sai do escopo da LGPD. Pseudonimização: identificadores substituídos por pseudônimos, mas existe chave de decodificação — dado ainda é pessoal.'},
+
+{id:9,type:'mc',topic:'Estatística',
+ q:'Correlação de Pearson = <strong>+0.92</strong> indica:',
+ opts:['Sem relação linear entre as variáveis','Forte correlação linear positiva — quando uma cresce, a outra tende a crescer','Causalidade: uma variável causa o aumento da outra','Correlação não-linear muito forte'],
+ c:1,
+ exp:'Pearson varia de -1 a +1. Próximo de +1 → forte correlação positiva. IMPORTANTE: correlação não implica causalidade. Pearson mede apenas relações lineares — para não-lineares use Spearman.'},
+
+{id:10,type:'mc',topic:'Estatística',
+ q:'Coeficiente com <strong>p-valor = 0.003</strong> e α = 0.05 é:',
+ opts:['Não significativo — p deve ser maior que α','Estatisticamente significativo — 0.003 &lt; 0.05 → rejeitamos H₀ (coeficiente = 0)','Inconclusivo sem o intervalo de confiança','Significativo apenas se R² total &gt; 0.7'],
+ c:1,
+ exp:'p-valor < α → rejeita H₀ de que o coeficiente = 0. p = 0.003 < 0.05 → estatisticamente significativo. É muito improvável que o efeito observado seja por acaso.'},
+
+{id:11,type:'mc',topic:'Regressão',
+ q:'O <strong>coeficiente R²</strong> mede:',
+ opts:['A força da correlação linear (equivalente ao Pearson)','A proporção da variância da variável dependente explicada pelo modelo','O erro médio absoluto das previsões','A probabilidade de as previsões estarem dentro de 5% do valor real'],
+ c:1,
+ exp:'R² = 0.85 → o modelo explica 85% da variância de Y. R² = 1 → ajuste perfeito. R² próximo de 0 → modelo não explica a variância. Atenção: R² alto não garante generalização (pode ser overfitting).'},
+
+{id:12,type:'mc',topic:'Regressão',
+ q:'Principal diferença entre <strong>Regressão Linear</strong> e <strong>Regressão Logística</strong>:',
+ opts:['Linear usa múltiplas variáveis; Logística usa apenas uma','Linear prevê valores contínuos; Logística prevê probabilidades de classe (saída entre 0 e 1 via sigmoid)','Logística é sempre mais precisa que a Linear','Linear é para texto; Logística para dados numéricos'],
+ c:1,
+ exp:'Linear → variável dependente contínua (preço, temperatura). Logística → variável categórica binária (spam/não-spam, churn/não-churn). Saída da logística é probabilidade via função sigmoid.'},
+
+{id:13,type:'mc',topic:'Regressão',
+ q:'<strong>Multicolinearidade</strong> em regressão linear ocorre quando:',
+ opts:['A variável dependente não tem distribuição normal','Duas ou mais variáveis independentes são altamente correlacionadas entre si, dificultando estimar coeficientes individualmente','O modelo tem mais features que observações','Os resíduos apresentam padrão (heterocedasticidade)'],
+ c:1,
+ exp:'Multicolinearidade: variáveis independentes correlacionadas → o modelo não separa seus efeitos. Inflaciona os erros padrão dos coeficientes. Detectada com VIF. Solução: remover variável correlacionada ou usar PCA.'},
+
+{id:14,type:'mc',topic:'Classificação',
+ q:'Na matriz de confusão, <strong>Falso Negativo (FN)</strong> ocorre quando:',
+ opts:['Modelo previu positivo e estava correto','Modelo previu negativo mas a instância era positiva — "perdeu" um caso real','Modelo previu positivo mas a instância era negativa','Modelo previu negativo e estava correto'],
+ c:1,
+ exp:'FN (False Negative): o modelo disse "negativo" mas o real era "positivo". Em diagnóstico médico, FN = paciente doente classificado como saudável — frequentemente o erro mais crítico. Alto FN → Recall baixo.'},
+
+{id:15,type:'mc',topic:'Classificação',
+ q:'Para <strong>detecção de fraude bancária</strong>, onde é crítico não perder nenhuma fraude, qual métrica priorizar?',
+ opts:['Precision — minimizar falsos positivos','Recall (Sensibilidade) — minimizar falsos negativos','Acurácia — proporção geral de acertos','Especificidade — proporção de negativos corretos'],
+ c:1,
+ exp:'Recall = TP / (TP + FN) — mede quantos casos positivos reais foram detectados. Para fraude, FN (fraude não detectada) tem custo alto → priorize Recall. Precision seria prioridade quando FP é mais caro.'},
+
+{id:16,type:'mc',topic:'Clusterização',
+ q:'O algoritmo <strong>K-means</strong> é classificado como:',
+ opts:['Aprendizado supervisionado — usa labels para treinar centróides','Aprendizado não supervisionado — agrupa dados sem labels, minimizando a inércia intra-cluster','Aprendizado semi-supervisionado — usa 10% de dados rotulados','Aprendizado por reforço — centróides aprendem por tentativa e erro'],
+ c:1,
+ exp:'K-means é não supervisionado: não usa labels. Inicializa k centróides, atribui cada ponto ao mais próximo (Euclidiana), recalcula centróides, repete até convergência. Minimiza inércia (soma das distâncias² ao centróide).'},
+
+{id:17,type:'mc',topic:'Machine Learning',
+ q:'O <strong>Random Forest</strong> reduz overfitting em relação a uma única árvore porque:',
+ opts:['Usa GPU para processamento paralelo','Combina N árvores treinadas em bootstrap samples com features aleatórias — diversidade reduz variância (bagging)','Aplica regularização L1/L2 em cada árvore','Substitui splits binários por splits contínuos'],
+ c:1,
+ exp:'Random Forest = ensemble de N árvores em bootstrap samples, cada split usando subset aleatório de features. Previsão final: votação (classificação) ou média (regressão). Reduz variância sem aumentar viés significativamente.'},
+
+{id:18,type:'mc',topic:'Big Data / Spark',
+ q:'<strong>Lazy evaluation</strong> no Apache Spark significa que:',
+ opts:['Spark usa CPU apenas quando memória está disponível','Transformações (filter, select, groupBy) não executam imediatamente — o plano é otimizado e executado só quando uma action é chamada','Spark adia operações de disco para processar tudo em RAM','Workers inicializam apenas quando 80% da memória está preenchida'],
+ c:1,
+ exp:'Lazy evaluation: transformações constroem um DAG. Nenhum dado é processado até uma action (collect, count, show). O Catalyst Optimizer otimiza o plano completo antes de executar — reordena filtros, elimina colunas desnecessárias.'},
+
+{id:19,type:'mc',topic:'Big Data / Spark',
+ q:'Principal vantagem de <strong>DataFrames Spark</strong> sobre <strong>RDDs</strong> para dados tabulares:',
+ opts:['RDDs são mais rápidos pois não têm schema','DataFrames são otimizados automaticamente pelo Catalyst Optimizer — RDDs dependem de otimização manual do código','DataFrames funcionam apenas com CSV; RDDs aceitam qualquer formato','RDDs suportam SQL; DataFrames não'],
+ c:1,
+ exp:'DataFrames têm schema + Catalyst Optimizer (pushdown de filtros, eliminação de colunas). RDDs são de baixo nível — performance depende do código escrito. Use DataFrame para dados tabulares; RDD apenas para lógica não suportada por DataFrame.'},
+
+{id:20,type:'mc',topic:'Big Data / MapReduce',
+ q:'No paradigma <strong>MapReduce</strong>, função da fase <strong>Shuffle</strong>:',
+ opts:['Embaralhar dados para aumentar aleatoriedade','Redistribuir e agrupar pares (chave, valor) do Map pelos Reducers responsáveis por cada chave — a fase mais custosa em rede','Ordenar dados finais em ordem crescente por chave','Compactar dados intermediários para economizar banda'],
+ c:1,
+ exp:'Shuffle: pares (chave, valor) do Map são redistribuídos pela rede — todos os valores da mesma chave chegam ao mesmo Reducer. É a fase mais cara do MapReduce em tempo e rede, pois move dados entre workers.'},
+
+// ── CÓDIGO PYTHON (10) ───────────────────────────────────────────────────────
+{id:21,type:'py',topic:'Visualização',
+ q:'Escreva código Python com <strong>seaborn</strong> para criar um <strong>boxplot</strong> comparando a distribuição de <code>salario</code> por <code>departamento</code> em um DataFrame <code>df</code>.',
+ req:['boxplot','df','salario','departamento'],
+ tip:'Qual função do seaborn cria boxplots com agrupamento por categoria? Os parâmetros x e y recebem quais colunas?',
+ exp:'import seaborn as sns\nimport matplotlib.pyplot as plt\nsns.boxplot(data=df, x="departamento", y="salario")\nplt.title("Salário por Departamento")\nplt.show()'},
+
+{id:22,type:'py',topic:'Tratamento de Dados',
+ q:'Escreva código pandas para: (1) contar nulos por coluna; (2) preencher nulos numéricos com a <strong>mediana</strong>; (3) remover linhas onde <code>nome</code> é nulo.',
+ req:['isnull','fillna','median','dropna'],
+ tip:'isnull().sum() conta nulos. fillna() com median() preenche. dropna(subset=[...]) remove linhas específicas.',
+ exp:'df.isnull().sum()\ndf.fillna(df.median(numeric_only=True), inplace=True)\ndf.dropna(subset=["nome"], inplace=True)'},
+
+{id:23,type:'py',topic:'Pré-processamento',
+ q:'Escreva código Python para dividir <code>df</code> em treino (80%) e teste (20%) com sklearn, separando features <code>X</code> (tudo exceto <code>"target"</code>) e rótulo <code>y</code>.',
+ req:['train_test_split','drop','test_size','0.2'],
+ tip:'train_test_split vem de sklearn.model_selection. Como separar X e y de um DataFrame? Quais parâmetros definem proporção?',
+ exp:'from sklearn.model_selection import train_test_split\nX = df.drop("target", axis=1)\ny = df["target"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)'},
+
+{id:24,type:'py',topic:'Regressão Linear',
+ q:'Escreva código Python para treinar uma <strong>Regressão Linear</strong> com sklearn, fazer previsões em <code>X_test</code> e imprimir o <strong>R²</strong> e o <strong>RMSE</strong>.',
+ req:['linearregression','fit','predict','r2_score'],
+ tip:'LinearRegression está em sklearn.linear_model. r2_score e mean_squared_error em sklearn.metrics. RMSE = raiz do MSE.',
+ exp:'from sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import r2_score, mean_squared_error\nimport numpy as np\nmodel = LinearRegression().fit(X_train, y_train)\ny_pred = model.predict(X_test)\nprint("R²:", r2_score(y_test, y_pred))\nprint("RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))'},
+
+{id:25,type:'py',topic:'Regressão Logística',
+ q:'Escreva código Python para treinar uma <strong>Regressão Logística</strong> e exibir a <strong>matriz de confusão</strong> e o <strong>classification_report</strong>.',
+ req:['logisticregression','fit','confusion_matrix','classification_report'],
+ tip:'LogisticRegression em sklearn.linear_model. As métricas estão em sklearn.metrics. Faça predict antes de avaliar.',
+ exp:'from sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import confusion_matrix, classification_report\nmodel = LogisticRegression(max_iter=1000).fit(X_train, y_train)\ny_pred = model.predict(X_test)\nprint(confusion_matrix(y_test, y_pred))\nprint(classification_report(y_test, y_pred))'},
+
+{id:26,type:'py',topic:'Clusterização',
+ q:'Escreva código Python para aplicar <strong>K-means com k=3</strong> nos dados <code>X</code> e imprimir os <strong>centróides</strong> e a <strong>inércia</strong>.',
+ req:['kmeans','n_clusters','cluster_centers_','inertia_'],
+ tip:'KMeans está em sklearn.cluster. cluster_centers_ são os centróides finais. inertia_ é a soma das distâncias² ao centróide.',
+ exp:'from sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=3, random_state=42)\nkmeans.fit(X)\nprint("Centróides:", kmeans.cluster_centers_)\nprint("Inércia:", kmeans.inertia_)'},
+
+{id:27,type:'py',topic:'Random Forest',
+ q:'Escreva código Python para treinar um <strong>Random Forest Classifier</strong> com 100 árvores e imprimir as <strong>importâncias de features</strong> em ordem decrescente.',
+ req:['randomforestclassifier','n_estimators','feature_importances_'],
+ tip:'RandomForestClassifier em sklearn.ensemble. feature_importances_ retorna array. Use pandas Series para ordenar.',
+ exp:'from sklearn.ensemble import RandomForestClassifier\nimport pandas as pd\nrf = RandomForestClassifier(n_estimators=100, random_state=42).fit(X_train, y_train)\nfeat = pd.Series(rf.feature_importances_, index=X_train.columns)\nprint(feat.sort_values(ascending=False))'},
+
+{id:28,type:'py',topic:'PySpark',
+ q:'Escreva código <strong>PySpark</strong> para filtrar registros de <code>df</code> onde <code>valor &gt; 100</code>, agrupar por <code>categoria</code> e contar, exibindo resultado.',
+ req:['filter','groupby','count','show'],
+ tip:'filter() seleciona linhas. groupBy().count() agrupa e conta. show() exibe. Encadeie as operações.',
+ exp:'df.filter(df.valor > 100)\\\n  .groupBy("categoria")\\\n  .count()\\\n  .orderBy("count", ascending=False)\\\n  .show()'},
+
+{id:29,type:'py',topic:'Pipeline sklearn',
+ q:'Escreva código Python para criar um <strong>Pipeline sklearn</strong> com <code>StandardScaler</code> + <code>LogisticRegression</code> e avaliar com <strong>cross_val_score</strong> (cv=5).',
+ req:['pipeline','standardscaler','logisticregression','cross_val_score'],
+ tip:'Pipeline em sklearn.pipeline. Estágios são lista de tuplas (nome, objeto). cross_val_score aplica CV no pipeline inteiro.',
+ exp:'from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\npipe = Pipeline([("scaler", StandardScaler()), ("clf", LogisticRegression())])\nscores = cross_val_score(pipe, X, y, cv=5, scoring="accuracy")\nprint(scores.mean())'},
+
+{id:30,type:'py',topic:'Otimização de Modelos',
+ q:'Escreva código Python para usar <strong>GridSearchCV</strong> para tunar Random Forest com <code>n_estimators=[50,100]</code> e <code>max_depth=[3,5,None]</code>, cv=3. Imprima os melhores parâmetros.',
+ req:['gridsearchcv','randomforestclassifier','param_grid','best_params_'],
+ tip:'GridSearchCV em sklearn.model_selection. param_grid é dicionário. Após fit(), best_params_ contém os melhores.',
+ exp:'from sklearn.model_selection import GridSearchCV\nfrom sklearn.ensemble import RandomForestClassifier\nparam_grid = {"n_estimators":[50,100], "max_depth":[3,5,None]}\ngrid = GridSearchCV(RandomForestClassifier(), param_grid, cv=3, scoring="accuracy")\ngrid.fit(X_train, y_train)\nprint(grid.best_params_)'},
+
+// ── BÔNUS / OPTATIVAS (5) ─────────────────────────────────────────────────────
+{id:31,type:'mc',topic:'⭐ Bônus — Big Data',bonus:true,
+ q:'⭐ <strong>OPTATIVA</strong> — Quais são os <strong>4 Vs</strong> que caracterizam o Big Data?',
+ opts:['Velocidade, Volume, Variedade, Veracidade','Volume, Velocidade, Variedade e Veracidade (Valor como 5º V)','Velocidade, Volume, Validação e Visualização','Volatilidade, Volume, Versão e Variedade'],
+ c:1,
+ exp:'Os 4Vs: Volume (quantidade), Velocidade (geração/processamento), Variedade (formatos: estruturado, semi e não-estruturado) e Veracidade (qualidade/confiabilidade). Alguns modelos adicionam Valor como 5º V.'},
+
+{id:32,type:'mc',topic:'⭐ Bônus — NoSQL',bonus:true,
+ q:'⭐ <strong>OPTATIVA</strong> — O <strong>Teorema CAP</strong> afirma que um sistema distribuído garante no máximo dois de três atributos. Quais são eles?',
+ opts:['Consistência, Disponibilidade e Tolerância a Partições','Caching, Autenticação e Performance','Confiabilidade, Atomicidade e Paralelismo','Consistência, Acurácia e Privacidade'],
+ c:0,
+ exp:'CAP (Brewer, 2000): Consistency (todos os nós veem os mesmos dados), Availability (toda requisição recebe resposta), Partition Tolerance (funciona mesmo com falhas de rede). MongoDB sacrifica C; HBase sacrifica A.'},
+
+{id:33,type:'mc',topic:'⭐ Bônus — ML',bonus:true,
+ q:'⭐ <strong>OPTATIVA</strong> — <strong>Feature engineering</strong> é o processo de:',
+ opts:['Selecionar automaticamente o melhor algoritmo de ML','Criar, transformar e selecionar variáveis para melhorar a performance do modelo','Engenharia de software para implantação de modelos em produção','Ajuste fino de hiperparâmetros usando grid search'],
+ c:1,
+ exp:'Feature engineering: criação de variáveis (ex: extrair dia da semana de data), transformações (log, normalização), codificação de categorias (one-hot, label encoding) e seleção de features. Frequentemente tem o maior impacto na qualidade do modelo.'},
+
+{id:34,type:'py',topic:'⭐ Bônus — Pré-proc.',bonus:true,
+ q:'⭐ <strong>OPTATIVA</strong> — Escreva código Python para aplicar <strong>StandardScaler</strong> apenas nas colunas numéricas de <code>df</code>, sem alterar colunas categóricas.',
+ req:['standardscaler','fit_transform','select_dtypes','number'],
+ tip:'select_dtypes(include="number") seleciona colunas numéricas. StandardScaler normaliza para média 0, desvio 1.',
+ exp:'from sklearn.preprocessing import StandardScaler\nnum_cols = df.select_dtypes(include="number").columns\ndf[num_cols] = StandardScaler().fit_transform(df[num_cols])'},
+
+{id:35,type:'py',topic:'⭐ Bônus — PySpark',bonus:true,
+ q:'⭐ <strong>OPTATIVA</strong> — Escreva código <strong>PySpark</strong> para calcular soma de <code>valor</code> e média de <code>desconto</code> agrupadas por <code>categoria</code>, ordenando pelo total decrescente.',
+ req:['groupby','agg','sum','avg','orderby'],
+ tip:'Use F.sum() e F.avg() dentro de agg(). orderBy() com .desc() ordena decrescente.',
+ exp:'from pyspark.sql import functions as F\ndf.groupBy("categoria")\\\n  .agg(F.sum("valor").alias("total"), F.avg("desconto").alias("desc_medio"))\\\n  .orderBy(F.col("total").desc())\\\n  .show()'},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let SQL = null, db = null;
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderQuestions() {
+  const wrap = document.getElementById('qcontainer');
+  let prevBonus = false;
+  QS.forEach((q) => {
+    if (q.bonus && !prevBonus) {
+      const div = document.createElement('div');
+      div.className = 'sec-div';
+      div.innerHTML = '<span style="color:#43e97b;">⭐ Questões Optativas Bônus</span>';
+      wrap.appendChild(div);
+      prevBonus = true;
+    }
+    const isCode = q.type === 'py';
+    const isBonus = !!q.bonus;
+    const card = document.createElement('div');
+    card.className = 'q-card' + (isCode ? ' py' : '') + (isBonus ? ' bonus' : '');
+    card.id = 'qcard_' + q.id;
+    const typeLabel = isCode ? '🐍 Código Python' : '📝 Objetiva';
+    let inner = `<div class="q-num">${typeLabel} · Questão ${q.id} de ${QS.length}</div>
+      <div class="q-topic-tag">${q.topic}</div>
+      <div class="q-text">${q.q}</div>`;
+    if (!isCode) {
+      inner += '<div class="opts">';
+      q.opts.forEach((opt, j) => {
+        inner += `<div class="opt" onclick="pickOpt(${q.id},${j})">
+          <input type="radio" name="q${q.id}" id="o${q.id}_${j}" value="${j}">
+          <label for="o${q.id}_${j}">${opt}</label></div>`;
+      });
+      inner += '</div>';
+    } else {
+      inner += `<textarea class="py-area" id="py_${q.id}" rows="4"
+        placeholder="# Digite seu código Python aqui..."
+        oninput="updateProg()"></textarea>
+        <div class="py-hint">💡 ${q.tip}</div>`;
+    }
+    card.innerHTML = inner;
+    wrap.appendChild(card);
+  });
+}
+
+function pickOpt(qid, idx) {
+  document.querySelectorAll(`#qcard_${qid} .opt`).forEach(o => o.classList.remove('selected'));
+  document.querySelector(`#qcard_${qid} .opt:nth-child(${idx + 1})`).classList.add('selected');
+  document.getElementById(`o${qid}_${idx}`).checked = true;
+  updateProg();
+}
+
+function updateProg() {
+  let cnt = 0;
+  QS.forEach(q => {
+    if (q.type === 'mc') {
+      if (document.querySelector(`input[name="q${q.id}"]:checked`)) cnt++;
+    } else {
+      const v = (document.getElementById('py_' + q.id) || {}).value || '';
+      if (v.trim().length > 4) cnt++;
+    }
+  });
+  const total = QS.length;
+  const pct = Math.round(cnt / total * 100);
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('prog-lbl').textContent = cnt + ' / ' + total + ' respondidas';
+}
+
+// ── GRADING ───────────────────────────────────────────────────────────────────
+function checkCode(q, ans) {
+  if (!ans || ans.trim().length < 4) return false;
+  const n = ans.toLowerCase().replace(/\s+/g, ' ').replace(/_/g, '_').trim();
+  return q.req.every(t => n.includes(t.toLowerCase()));
+}
+
+function gradeQuiz() {
+  const results = [];
+  let mainScore = 0, bonusScore = 0;
+  QS.forEach(q => {
+    let ans = '', ok = false;
+    if (q.type === 'mc') {
+      const el = document.querySelector(`input[name="q${q.id}"]:checked`);
+      ans = el ? q.opts[parseInt(el.value)] : '(não respondeu)';
+      ok = el ? parseInt(el.value) === q.c : false;
+    } else {
+      ans = (document.getElementById('py_' + q.id) || {}).value || '(não respondeu)';
+      ok = checkCode(q, ans);
+    }
+    if (ok) { q.bonus ? bonusScore++ : mainScore++; }
+    results.push({ q, ans, ok });
+  });
+  return { mainScore, bonusScore, results };
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────────
+async function submitQuiz() {
+  const name = document.getElementById('sname').value.trim();
+  if (!name) { alert('Por favor, informe seu nome antes de finalizar.'); return; }
+
+  const { mainScore, bonusScore, results } = gradeQuiz();
+  const pct = Math.round(mainScore / MAIN_TOTAL * 100);
+
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('results-section').style.display = 'block';
+
+  const ring = document.getElementById('score-ring');
+  const color = pct >= 70 ? '#80ffb4' : pct >= 50 ? '#fda085' : '#ff8a80';
+  ring.style.borderColor = color;
+  document.getElementById('score-n').textContent = mainScore;
+  document.getElementById('score-n').style.color = color;
+  document.getElementById('score-sub').textContent = `acertos de ${MAIN_TOTAL}  (${pct}%)`;
+
+  if (bonusScore > 0) {
+    document.getElementById('bonus-display').innerHTML =
+      `<div class="bonus-badge">⭐ +${bonusScore} questão(ões) bônus correta(s) de 5</div>`;
+  }
+
+  const msg = pct >= 80 ? 'Excelente! Domínio sólido dos conteúdos de P2.' :
+              pct >= 60 ? 'Bom desempenho! Revise os pontos marcados em vermelho.' :
+              'Continue estudando — revise as aulas de regressão, clusterização e Spark.';
+  document.getElementById('score-meta').innerHTML =
+    `<p style="margin-top:8px">${msg}</p>
+     <p style="font-size:.85rem;margin-top:4px;color:#7dd3fc">
+       Aluno: <strong style="color:#4facfe">${name}</strong></p>`;
+
+  const rev = document.getElementById('review-container');
+  rev.innerHTML = '<h3 style="color:#4facfe;margin-bottom:16px;">Revisão das Respostas</h3>';
+  results.forEach(({ q, ans, ok }) => {
+    const card = document.createElement('div');
+    card.className = 'r-item ' + (ok ? 'ok' : 'nok');
+    const corrStr = q.type === 'mc'
+      ? q.opts[q.c]
+      : `<code style="color:#ffd700;white-space:pre-wrap">${q.exp}</code>`;
+    card.innerHTML = `<span class="r-badge ${ok ? 'ok' : 'nok'}">${ok ? '✅ Correto' : '❌ Incorreto'}</span>
+      <div class="r-q">Q${q.id} [${q.topic}]: ${q.q.replace(/<[^>]+>/g, '')}</div>
+      <div class="r-ans">Sua resposta: ${ans}</div>
+      ${!ok ? `<div class="r-ans" style="border:1px solid rgba(128,255,180,.2);">Gabarito: ${corrStr}</div>` : ''}
+      <div class="r-exp"><span>Por quê:</span> ${q.exp}</div>`;
+    rev.appendChild(card);
+  });
+
+  await saveToSQLite(name, mainScore, bonusScore, pct, results);
+  buildPrintArea(name, mainScore, bonusScore, pct, results);
+}
+
+// ── SQLITE ────────────────────────────────────────────────────────────────────
+async function initSQL() {
+  if (SQL) return;
+  SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+  const saved = localStorage.getItem('ds_p2_sim_db');
+  if (saved) {
+    try { db = new SQL.Database(new Uint8Array(JSON.parse(saved))); return; } catch (e) {}
+  }
+  db = new SQL.Database();
+  db.run(`CREATE TABLE IF NOT EXISTS simulado(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    aluno TEXT, data_hora TEXT,
+    acertos INTEGER, bonus INTEGER, total INTEGER, pct REAL);`);
+  db.run(`CREATE TABLE IF NOT EXISTS respostas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sim_id INTEGER, questao INTEGER,
+    tipo TEXT, topico TEXT, resposta TEXT, correto INTEGER);`);
+}
+
+function persistDB() {
+  try { localStorage.setItem('ds_p2_sim_db', JSON.stringify(Array.from(db.export()))); } catch (e) {}
+}
+
+async function saveToSQLite(name, main, bonus, pct, results) {
+  try {
+    await initSQL();
+    const now = new Date().toLocaleString('pt-BR');
+    db.run('INSERT INTO simulado(aluno,data_hora,acertos,bonus,total,pct) VALUES(?,?,?,?,?,?)',
+      [name, now, main, bonus, MAIN_TOTAL, pct]);
+    const simId = db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0];
+    results.forEach(({ q, ans, ok }) => {
+      db.run('INSERT INTO respostas(sim_id,questao,tipo,topico,resposta,correto) VALUES(?,?,?,?,?,?)',
+        [simId, q.id, q.type, q.topic, ans.substring(0, 600), ok ? 1 : 0]);
+    });
+    persistDB();
+    const tot = db.exec('SELECT COUNT(*) FROM simulado')[0].values[0][0];
+    document.getElementById('db-info').innerHTML =
+      `<strong>💾 SQLite:</strong> Resultado de <strong>${name}</strong> salvo — ${now}. Total de tentativas: ${tot}.`;
+    notify('✅ Resultado salvo no banco SQLite!');
+  } catch (e) {
+    document.getElementById('db-info').innerHTML =
+      `<strong>⚠️ SQLite:</strong> ${e.message} — resultado disponível apenas para impressão.`;
+  }
+}
+
+function toggleHist() {
+  const area = document.getElementById('hist-area');
+  if (area.style.display === 'none') {
+    area.style.display = 'block';
+    try {
+      const rows = db.exec('SELECT aluno, data_hora, acertos, bonus, total, pct FROM simulado ORDER BY id DESC')[0];
+      let html = '<tr><th>Aluno</th><th>Data/Hora</th><th>Acertos</th><th>Bônus</th><th>%</th></tr>';
+      rows.values.forEach(r => {
+        html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}/${r[4]}</td><td>+${r[3]}</td><td>${r[5]}%</td></tr>`;
+      });
+      document.getElementById('hist-table').innerHTML = html;
+    } catch (e) { document.getElementById('hist-table').innerHTML = '<tr><td>Sem dados</td></tr>'; }
+  } else { area.style.display = 'none'; }
+}
+
+function downloadSQLite() {
+  if (!db) { alert('Banco ainda não inicializado.'); return; }
+  const blob = new Blob([db.export()], { type: 'application/octet-stream' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'simulado_p2_ciencia_dados.sqlite';
+  a.click();
+  notify('⬇️ Arquivo .sqlite baixado!');
+}
+
+// ── PDF / PRINT ───────────────────────────────────────────────────────────────
+function buildPrintArea(name, main, bonus, pct, results) {
+  const now = new Date().toLocaleString('pt-BR');
+  const color = pct >= 70 ? 'green' : pct >= 50 ? 'darkorange' : 'red';
+  let html = `<div class="print-header">
+    <h2>Simulado P2 — Ciência de Dados</h2>
+    <p>Univassouras 2026 · Prof. Mesc. Diego Ramos Inácio</p>
+    <p><strong>Aluno:</strong> ${name} &nbsp;|&nbsp; <strong>Data:</strong> ${now}</p>
+  </div>
+  <div class="print-score" style="color:${color}">
+    ${main} / ${MAIN_TOTAL} acertos (${pct}%)${bonus > 0 ? ' &nbsp;+&nbsp;' + bonus + ' bônus' : ''}
+  </div><hr style="margin:10px 0;">`;
+  results.forEach(({ q, ans, ok }) => {
+    const gabarito = q.type === 'mc' ? q.opts[q.c] : q.exp;
+    html += `<div class="print-item ${ok ? 'print-ok' : 'print-nok'}">
+      <div class="print-label ${ok ? 'ok' : 'nok'}">Q${q.id} [${q.topic}] — ${ok ? 'CORRETO' : 'INCORRETO'}</div>
+      <div class="print-q">${q.q.replace(/<[^>]+>/g, '')}</div>
+      <div class="print-a">Resposta: ${ans.replace(/<[^>]+>/g, '')}</div>
+      ${!ok ? `<div class="print-a">Gabarito: ${gabarito.replace(/<[^>]+>/g, '')}</div>` : ''}
+      <div class="print-e">Explicação: ${q.exp.replace(/<[^>]+>/g, '')}</div>
+    </div>`;
+  });
+  document.getElementById('print-area').innerHTML = html;
+}
+
+function exportPDF() {
+  document.getElementById('print-area').style.display = 'block';
+  window.print();
+  setTimeout(() => { document.getElementById('print-area').style.display = 'none'; }, 1200);
+}
+
+// ── NOTIFY ────────────────────────────────────────────────────────────────────
+function notify(msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+// ── APOIO ─────────────────────────────────────────────────────────────────────
+function openApoio() {
+  document.getElementById('apoio-drawer').classList.add('open');
+  document.getElementById('apoio-overlay').classList.add('show');
+}
+function closeApoio() {
+  document.getElementById('apoio-drawer').classList.remove('open');
+  document.getElementById('apoio-overlay').classList.remove('show');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderQuestions();
+initSQL().catch(() => {});
+</script>
+</body>
+</html>
